@@ -19,5 +19,4 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
 
     Author findByName(String name);
 
-    List<Author> findAllAuthorNamesIn(Set<String> uniqueAuthorNames);
 }

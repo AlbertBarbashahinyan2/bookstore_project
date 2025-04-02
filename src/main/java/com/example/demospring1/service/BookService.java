@@ -42,4 +42,40 @@ public class BookService {
     public void saveAll(List<Book> books) {
         bookRepository.saveAll(books);
     }
+
+    public Book setupBook(String bookId, String title, String description, String series, String pages, String price) {
+        Book book = new Book();
+        book.setBookId(bookId);
+        book.setTitle(title);
+
+        description = description.substring(0, Math.min(description.length(), 2500));
+        book.setDescription(description);
+
+        if (series.isBlank()) {
+            book.setSeries(null);
+        }else {
+            book.setSeries(series);
+        }
+
+        if (pages.isBlank()) {
+            book.setPages(null);
+        }else {
+            pages = pages.trim().replaceAll("[^\\d]", "");
+            int pagesInt = Integer.parseInt(pages);
+            book.setPages(pagesInt);
+        }
+
+        if (price.isBlank()) {
+            book.setPrice(null);
+        } else {
+            price = price.trim().replaceAll("[^\\d.]", "");
+            int pointIndex = price.lastIndexOf(".");
+            if (pointIndex != -1) {
+                price = price.substring(0, pointIndex).replaceAll("\\.", "") + price.substring(pointIndex);
+            }
+            book.setPrice(Float.parseFloat(price));
+        }
+
+        return book;
+    }
 }

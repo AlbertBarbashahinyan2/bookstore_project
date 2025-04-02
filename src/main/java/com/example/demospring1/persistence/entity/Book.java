@@ -24,13 +24,19 @@ public class Book {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description", length = 2500)
-    private String description;
-
     @Column(name = "series")
     private String series;
 
+    @Column(name = "pages")
+    private Integer pages;
+
+    @Column(name = "description", length = 2500)
+    private String description;
+
     @OneToMany(mappedBy = "book")
     private List<BookAuthor> authors;
+
+    @Column(name = "price")
+    private Float price;
 
 }

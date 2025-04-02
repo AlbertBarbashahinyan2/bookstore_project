@@ -62,6 +62,8 @@ public class CsvUploadService {
                     String title = record.get("title").trim();
                     String description = record.get("description").trim();
                     String series = record.get("series").trim();
+                    String pages = record.get("pages").trim();
+                    String price = record.get("price").trim();
                     String[] authorNames = record.get("author").trim().split(",\\s*");
 
                     if (existingBookIds.contains(bookId) || seenBookIds.contains(bookId)) {
@@ -69,14 +71,7 @@ public class CsvUploadService {
                         continue;
                     }
 
-
-                    description = description.substring(0, Math.min(description.length(), 2500));
-
-                    Book book = new Book();
-                    book.setBookId(bookId);
-                    book.setTitle(title);
-                    book.setDescription(description);
-                    book.setSeries(series);
+                    Book book = bookService.setupBook(bookId, title, description, series, pages, price);
 
                     for (String name : authorNames) {
                         if (name.isBlank()) {
