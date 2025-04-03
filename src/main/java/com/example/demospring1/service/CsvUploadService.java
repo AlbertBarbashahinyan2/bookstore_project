@@ -29,18 +29,24 @@ public class CsvUploadService {
     private final BookAuthorService bookAuthorService;
     private final GenreService genreService;
     private final BookGenreService bookGenreService;
+    private final PublisherService publisherService;
+    private final BookPublisherService bookPublisherService;
 
     @Transactional
     public void processCsv(MultipartFile file) throws IOException {
         List<Book> books = new ArrayList<>();
         List<Author> authors = new ArrayList<>();
         List<Genre> genres = new ArrayList<>();
+        List<Publisher> publishers = new ArrayList<>();
         Map<String, Author> processedAuthors = new HashMap<>();
         Map<String, Genre> processedGenres = new HashMap<>();
+        Map<String, Publisher> processedPublishers = new HashMap<>();
         List<BookAuthor> bookAuthors = new ArrayList<>();
         List<BookGenre> bookGenres = new ArrayList<>();
+        List<BookPublisher> bookPublishers = new ArrayList<>();
         Set<String> existingAuthorNames = new HashSet<>(authorService.getAllAuthorNames());
         Set<String> existingGenreNames = new HashSet<>(genreService.getAllGenreNames());
+        Set<String> existingPublisherNames = new HashSet<>(publisherService.getAllPublisherNames());
         Set<String> existingBookIds = new HashSet<>(bookService.getAllBookIds()); // Fetch all existing book IDs
         Set<String> seenBookIds = new HashSet<>(); // Track duplicates in the CSV
 
@@ -73,6 +79,7 @@ public class CsvUploadService {
                     String isbn = record.get("isbn").trim();
                     String[] authorNames = record.get("author").trim().split(",\\s*");
                     String[] genreNames = record.get("genres").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
+                    String[] publisherNames = record.get("publisher").trim().split("/\\s*");
 
                     if (existingBookIds.contains(bookId) || seenBookIds.contains(bookId)) {
                         System.out.println("Duplicate book found in CSV or DB, skipping: " + bookId);
@@ -83,6 +90,7 @@ public class CsvUploadService {
                             series, pages, price, language, edition, bookFormat, isbn);
 
                     for (String name : authorNames) {
+                        name = name.trim();
                         if (name.isBlank()) {
                             LOGGER.warning("Empty or blank author name found, skipping.");
                             continue;
@@ -112,6 +120,7 @@ public class CsvUploadService {
                     }
 
                     for (String name : genreNames) {
+                        name = name.trim();
                         if (name.isBlank()) {
                             LOGGER.warning("Empty or blank genre name found, skipping.");
                             continue;
@@ -140,18 +149,50 @@ public class CsvUploadService {
 
                     }
 
+                    for (String name : publisherNames) {
+                        name = name.trim();
+                        if (name.isBlank()) {
+                            LOGGER.warning("Empty or blank publisher name found, skipping.");
+                            continue;
+                        }
+
+                        // Check if author is already in processedAuthors
+                        Publisher publisher = processedPublishers.get(name);
+                        if (publisher == null) {
+                            if (existingPublisherNames.contains(name)) {
+                                // Author exists in database, fetch and cache it
+                                publisher = publisherService.findByName(name);
+                            } else {
+                                // Create a new transient Author and cache it
+                                publisher = new Publisher();
+                                publisher.setName(name);
+                                publishers.add(publisher);
+                            }
+                            processedPublishers.put(name, publisher); // Cache the author for future use
+                        }
+
+                        // Create the BookAuthor relationship
+                        BookPublisher bookPublisher = new BookPublisher();
+                        bookPublisher.setBook(book);
+                        bookPublisher.setPublisher(publisher);
+                        bookPublishers.add(bookPublisher);
+
+                    }
+
                     books.add(book);
                     seenBookIds.add(bookId); // Prevent re-processing within the same file
                 } catch (Exception e) {
                     LOGGER.log(Level.WARNING, "Error processing record: " + record, e);
                 }
 
-                if (books.size() > 500 || authors.size() > 500 || bookAuthors.size() > 500 || genres.size() > 500 || bookGenres.size() > 500){
-                    saveBatch(books, authors, bookAuthors, genres, bookGenres);
+                if (books.size() > 500 || authors.size() > 500 || bookAuthors.size() > 500
+                        || genres.size() > 500 || bookGenres.size() > 500 || publishers.size() > 500
+                        || bookPublishers.size() > 500){
+                    saveBatch(books, authors, bookAuthors, genres, bookGenres, publishers, bookPublishers);
                 }
             }
 
-            saveBatch(books, authors, bookAuthors, genres, bookGenres);
+            saveBatch(books, authors, bookAuthors, genres, bookGenres, publishers, bookPublishers);
 
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Failed to process CSV file", ex);
@@ -160,7 +201,7 @@ public class CsvUploadService {
     }
 
     private void saveBatch(List<Book> books, List<Author> authors, List<BookAuthor> bookAuthors,
-                           List<Genre> genres, List<BookGenre> bookGenres) {
+                           List<Genre> genres, List<BookGenre> bookGenres, List<Publisher> publishers, List<BookPublisher> bookPublishers) {
         if (!authors.isEmpty()) {
             authorService.saveAll(authors);
             authors.clear(); // Clear to release memory
@@ -183,6 +224,16 @@ public class CsvUploadService {
         if (!bookGenres.isEmpty()) {
             bookGenreService.saveAll(bookGenres);
             bookGenres.clear(); // Clear to release memory
+        }
+
+        if (!publishers.isEmpty()) {
+            publisherService.saveAll(publishers);
+            publishers.clear(); // Clear to release memory
+        }
+
+        if (!bookPublishers.isEmpty()) {
+            bookPublisherService.saveAll(bookPublishers);
+            bookPublishers.clear(); // Clear to release memory
         }
     }
 
