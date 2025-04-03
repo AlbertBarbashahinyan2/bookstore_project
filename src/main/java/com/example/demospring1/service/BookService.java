@@ -43,7 +43,9 @@ public class BookService {
         bookRepository.saveAll(books);
     }
 
-    public Book setupBook(String bookId, String title, String description, String series, String pages, String price) {
+    public Book setupBook(String bookId, String title, String description,
+                          String series, String pages, String price, String language,
+                          String edition, String bookFormat, String isbn) {
         Book book = new Book();
         book.setBookId(bookId);
         book.setTitle(title);
@@ -51,11 +53,7 @@ public class BookService {
         description = description.substring(0, Math.min(description.length(), 2500));
         book.setDescription(description);
 
-        if (series.isBlank()) {
-            book.setSeries(null);
-        }else {
-            book.setSeries(series);
-        }
+        book.setSeries(series.isBlank() ? null : series);
 
         if (pages.isBlank()) {
             book.setPages(null);
@@ -75,6 +73,11 @@ public class BookService {
             }
             book.setPrice(Float.parseFloat(price));
         }
+
+        book.setLanguage(language.isBlank() ? null : language);
+        book.setEdition(edition.isBlank() ? null : edition);
+        book.setBookFormat(bookFormat.isBlank() ? null : bookFormat);
+        book.setIsbn(isbn.equals("9999999999999") ? null : isbn);
 
         return book;
     }
