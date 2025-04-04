@@ -1,6 +1,6 @@
 package com.example.demospring1.persistence.repository;
 
-import com.example.demospring1.persistence.entity.Author;
+import com.example.demospring1.persistence.entity.Award;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -8,14 +8,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AuthorRepository extends JpaRepository<Author, Long> {
-
+public interface AwardRepository extends JpaRepository<Award, Long> {
     @Query(""" 
             SELECT a.name
-            FROM Author a
+            FROM Award a
             """)
-    List<String> findAllAuthorNames();
+    List<String> findAllAwardNames();
 
-    Author findByName(String name);
-
+    Award findByName(String name);
 }

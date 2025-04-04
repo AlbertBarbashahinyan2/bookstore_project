@@ -33,11 +33,20 @@ public class Book {
     @Column(name = "description", length = 2500)
     private String description;
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<BookAuthor> authors;
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<BookGenre> genres;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private List<BookPublisher> publishers;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private List<BookSetting> settings;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private List<BookAward> awards;
 
     @Column(name = "price")
     private Float price;
@@ -53,5 +62,9 @@ public class Book {
 
     @Column(name = "isbn")
     private String isbn;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "rating_id")
+    private Rating rating;
 
 }

@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 public class CsvUploadService {
 
-    private static final Logger LOGGER = Logger.getLogger(CsvUploadService.class.getName());
+    static final Logger LOGGER = Logger.getLogger(CsvUploadService.class.getName());
 
     private final BookService bookService;
     private final AuthorService authorService;
@@ -33,6 +33,10 @@ public class CsvUploadService {
     private final BookPublisherService bookPublisherService;
     private final SettingService settingService;
     private final BookSettingService bookSettingService;
+    private final AwardService awardService;
+    private final BookAwardService bookAwardService;
+    private final RatingService ratingService;
+
 
     @Transactional
     public void processCsv(MultipartFile file) throws IOException {
@@ -41,18 +45,22 @@ public class CsvUploadService {
         List<Genre> genres = new ArrayList<>();
         List<Publisher> publishers = new ArrayList<>();
         List<Setting> settings = new ArrayList<>();
+        List<Award> awards = new ArrayList<>();
         Map<String, Author> processedAuthors = new HashMap<>();
         Map<String, Genre> processedGenres = new HashMap<>();
         Map<String, Publisher> processedPublishers = new HashMap<>();
         Map<String, Setting> processedSettings = new HashMap<>();
+        Map<String, Award> processedAwards = new HashMap<>();
         List<BookAuthor> bookAuthors = new ArrayList<>();
         List<BookGenre> bookGenres = new ArrayList<>();
         List<BookPublisher> bookPublishers = new ArrayList<>();
         List<BookSetting> bookSettings = new ArrayList<>();
+        List<BookAward> bookAwards = new ArrayList<>();
         Set<String> existingAuthorNames = new HashSet<>(authorService.getAllAuthorNames());
         Set<String> existingGenreNames = new HashSet<>(genreService.getAllGenreNames());
         Set<String> existingPublisherNames = new HashSet<>(publisherService.getAllPublisherNames());
         Set<String> existingSettingNames = new HashSet<>(settingService.getAllSettingNames());
+        Set<String> existingAwardNames = new HashSet<>(awardService.getAllAwardNames());
         Set<String> existingBookIds = new HashSet<>(bookService.getAllBookIds()); // Fetch all existing book IDs
         Set<String> seenBookIds = new HashSet<>(); // Track duplicates in the CSV
 
@@ -83,10 +91,17 @@ public class CsvUploadService {
                     String bookFormat = record.get("bookFormat").trim();
                     String edition = record.get("edition").trim();
                     String isbn = record.get("isbn").trim();
+                    String rating = record.get("rating").trim();
+                    String numRatings = record.get("numRatings").trim();
+                    String likedPercent = record.get("likedPercent").trim();
                     String[] authorNames = record.get("author").trim().split(",\\s*");
                     String[] genreNames = record.get("genres").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
                     String[] publisherNames = record.get("publisher").trim().split("/\\s*");
                     String[] settingNames = record.get("setting").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
+                    String[] awardNames = record.get("awards").trim().replaceAll("[\\[\\]]", "")
+                            .replaceAll("(?<!\\\\)'(.*?)'(?!\\\\)", "$1")
+                            .replaceAll("(?<!\\\\)\"(.*?)\"(?!\\\\)", "$1").split(",\\s*");
+                    String[] ratingsByStars = record.get("ratingsByStars").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
 
                     if (existingBookIds.contains(bookId) || seenBookIds.contains(bookId)) {
                         System.out.println("Duplicate book found in CSV or DB, skipping: " + bookId);
@@ -96,125 +111,22 @@ public class CsvUploadService {
                     Book book = bookService.setupBook(bookId, title, description,
                             series, pages, price, language, edition, bookFormat, isbn);
 
-                    for (String name : authorNames) {
-                        name = name.trim();
-                        if (name.isBlank()) {
-                            LOGGER.warning("Empty or blank author name found, skipping.");
-                            continue;
-                        }
+                    authorService.processAuthorsAndBookAuthors(authorNames, processedAuthors,
+                            existingAuthorNames, authors, book, bookAuthors);
 
-                        // Check if author is already in processedAuthors
-                        Author author = processedAuthors.get(name);
-                        if (author == null) {
-                            if (existingAuthorNames.contains(name)) {
-                                // Author exists in database, fetch and cache it
-                                author = authorService.findByName(name);
-                            } else {
-                                // Create a new transient Author and cache it
-                                author = new Author();
-                                author.setName(name);
-                                authors.add(author);
-                            }
-                            processedAuthors.put(name, author); // Cache the author for future use
-                        }
+                    genreService.processGenresAndBookGenres(genreNames, processedGenres,
+                            existingGenreNames, genres, book, bookGenres);
 
-                        // Create the BookAuthor relationship
-                        BookAuthor bookAuthor = new BookAuthor();
-                        bookAuthor.setBook(book);
-                        bookAuthor.setAuthor(author);
-                        bookAuthors.add(bookAuthor);
+                    publisherService.processPublishersAndBookPublishers(publisherNames,
+                            processedPublishers, existingPublisherNames, publishers, book, bookPublishers);
 
-                    }
+                    settingService.processSettingsAndBookSettings(settingNames, processedSettings,
+                            existingSettingNames, settings, book, bookSettings);
 
-                    for (String name : genreNames) {
-                        name = name.trim();
-                        if (name.isBlank()) {
-                            LOGGER.warning("Empty or blank genre name found, skipping.");
-                            continue;
-                        }
+                    awardService.processAwardsAndBookAwards(awardNames, processedAwards,
+                            existingAwardNames, awards, book, bookAwards);
 
-                        // Check if author is already in processedAuthors
-                        Genre genre = processedGenres.get(name);
-                        if (genre == null) {
-                            if (existingGenreNames.contains(name)) {
-                                // Author exists in database, fetch and cache it
-                                genre = genreService.findByName(name);
-                            } else {
-                                // Create a new transient Author and cache it
-                                genre = new Genre();
-                                genre.setName(name);
-                                genres.add(genre);
-                            }
-                            processedGenres.put(name, genre); // Cache the author for future use
-                        }
-
-                        // Create the BookAuthor relationship
-                        BookGenre bookGenre = new BookGenre();
-                        bookGenre.setBook(book);
-                        bookGenre.setGenre(genre);
-                        bookGenres.add(bookGenre);
-
-                    }
-
-                    for (String name : publisherNames) {
-                        name = name.trim();
-                        if (name.isBlank()) {
-                            LOGGER.warning("Empty or blank publisher name found, skipping.");
-                            continue;
-                        }
-
-                        // Check if author is already in processedAuthors
-                        Publisher publisher = processedPublishers.get(name);
-                        if (publisher == null) {
-                            if (existingPublisherNames.contains(name)) {
-                                // Author exists in database, fetch and cache it
-                                publisher = publisherService.findByName(name);
-                            } else {
-                                // Create a new transient Author and cache it
-                                publisher = new Publisher();
-                                publisher.setName(name);
-                                publishers.add(publisher);
-                            }
-                            processedPublishers.put(name, publisher); // Cache the author for future use
-                        }
-
-                        // Create the BookAuthor relationship
-                        BookPublisher bookPublisher = new BookPublisher();
-                        bookPublisher.setBook(book);
-                        bookPublisher.setPublisher(publisher);
-                        bookPublishers.add(bookPublisher);
-
-                    }
-
-                    for (String name : settingNames) {
-                        name = name.trim();
-                        if (name.isBlank()) {
-                            LOGGER.warning("Empty or blank setting name found, skipping.");
-                            continue;
-                        }
-
-                        // Check if author is already in processedAuthors
-                        Setting setting = processedSettings.get(name);
-                        if (setting == null) {
-                            if (existingSettingNames.contains(name)) {
-                                // Author exists in database, fetch and cache it
-                                setting = settingService.findByName(name);
-                            } else {
-                                // Create a new transient Author and cache it
-                                setting = new Setting();
-                                setting.setName(name);
-                                settings.add(setting);
-                            }
-                            processedSettings.put(name, setting); // Cache the author for future use
-                        }
-
-                        // Create the BookAuthor relationship
-                        BookSetting bookSetting = new BookSetting();
-                        bookSetting.setBook(book);
-                        bookSetting.setSetting(setting);
-                        bookSettings.add(bookSetting);
-
-                    }
+                    ratingService.setupRatings( rating, numRatings, likedPercent, ratingsByStars, book);
 
                     books.add(book);
                     seenBookIds.add(bookId); // Prevent re-processing within the same file
@@ -224,14 +136,17 @@ public class CsvUploadService {
 
                 if (books.size() > 500 || authors.size() > 500 || bookAuthors.size() > 500
                         || genres.size() > 500 || bookGenres.size() > 1000 || publishers.size() > 500
-                        || bookPublishers.size() > 500 || settings.size() > 500 || bookSettings.size() > 500){
+                        || bookPublishers.size() > 500 || settings.size() > 500 || bookSettings.size() > 500
+                        || awards.size() > 500 || bookAwards.size() > 500 ){
                     saveBatch(books, authors, bookAuthors, genres, bookGenres,
-                            publishers, bookPublishers, settings, bookSettings);
+                            publishers, bookPublishers, settings, bookSettings,
+                            awards, bookAwards);
                 }
             }
 
             saveBatch(books, authors, bookAuthors, genres, bookGenres,
-                    publishers, bookPublishers, settings, bookSettings);
+                    publishers, bookPublishers, settings, bookSettings,
+                    awards, bookAwards);
 
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Failed to process CSV file", ex);
@@ -248,7 +163,9 @@ public class CsvUploadService {
             List<Publisher> publishers,
             List<BookPublisher> bookPublishers,
             List<Setting> settings,
-            List<BookSetting> bookSettings
+            List<BookSetting> bookSettings,
+            List<Award> awards,
+            List<BookAward> bookAwards
     ) {
         if (!authors.isEmpty()) {
             authorService.saveAll(authors);
@@ -293,6 +210,15 @@ public class CsvUploadService {
             bookSettingService.saveAll(bookSettings);
             bookSettings.clear(); // Clear to release memory
         }
-    }
 
+        if (!awards.isEmpty()) {
+            awardService.saveAll(awards);
+            awards.clear(); // Clear to release memory
+        }
+
+        if (!bookAwards.isEmpty()) {
+            bookAwardService.saveAll(bookAwards);
+            bookAwards.clear(); // Clear to release memory
+        }
+    }
 }

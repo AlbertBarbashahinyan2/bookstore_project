@@ -43,7 +43,7 @@ public class BookService {
         bookRepository.saveAll(books);
     }
 
-    public Book setupBook(String bookId, String title, String description,
+    Book setupBook(String bookId, String title, String description,
                           String series, String pages, String price, String language,
                           String edition, String bookFormat, String isbn) {
         Book book = new Book();

@@ -8,12 +8,12 @@ import lombok.ToString;
 import java.util.List;
 
 @Entity
-@Table(name = "author",
-        indexes = @Index(name = "idx_author_name", columnList = "name"))
+@Table(name = "award",
+        indexes = @Index(name = "idx_award_name", columnList = "name"))
 @Setter
 @Getter
 @ToString
-public class Author {
+public class Award {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +22,7 @@ public class Author {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "author")
-    private List<BookAuthor> books;
-
+    @OneToMany(mappedBy = "award")
+    private List<BookAward> awards;
 
 }
-
-
-
-
-

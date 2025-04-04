@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/book")
-public class TestController {
+public class BookController {
     private final CsvUploadService csvUploadService;
 
     @Autowired
-    public TestController(CsvUploadService csvUploadService) {
+    public BookController(CsvUploadService csvUploadService) {
         this.csvUploadService = csvUploadService;
     }
 

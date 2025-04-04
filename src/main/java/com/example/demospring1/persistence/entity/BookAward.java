@@ -1,17 +1,17 @@
 package com.example.demospring1.persistence.entity;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "book_publisher")
+@Table(name = "book_award")
 @Setter
 @Getter
 @ToString
-public class BookPublisher {
-
+public class BookAward {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,7 +21,9 @@ public class BookPublisher {
     private Book book;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "publisher_id")
-    private Publisher publisher;
+    @JoinColumn(name = "award_id")
+    private Award award;
 
+    @Column(name = "yearReceived")
+    private Integer yearReceived;
 }
