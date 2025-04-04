@@ -24,6 +24,6 @@ public class BookAward {
     @JoinColumn(name = "award_id")
     private Award award;
 
-    @Column(name = "yearReceived")
+    @Column(name = "year_received")
     private Integer yearReceived;
 }
