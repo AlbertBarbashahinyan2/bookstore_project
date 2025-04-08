@@ -49,20 +49,16 @@ public class AwardService {
                 return;
             }
 
-            // Check if author is already in processedAuthors
-            Award award = processedAwards.get(name);
-            if (award == null) {
-                if (existingAwardNames.contains(name)) {
-                    // Author exists in database, fetch and cache it
-                    award = findByName(name);
+            Award award;
+                if (processedAwards.containsKey(name)) {
+                    award = processedAwards.get(name);
                 } else {
-                    // Create a new transient Author and cache it
+                    // Create a new transient Award and cache it
                     award = new Award();
                     award.setName(name);
                     awards.add(award);
+                    processedAwards.put(name, award); // Cache the award for future use
                 }
-                processedAwards.put(name, award); // Cache the author for future use
-            }
 
             setupBookAwards(book, bookAwards, award, year);
 
@@ -70,7 +66,7 @@ public class AwardService {
 
     }
 
-    public static Map<String, Integer> parseAwards(String[] awards) {
+    static Map<String, Integer> parseAwards(String[] awards) {
         Map<String, Integer> awardYearMap = new HashMap<>();
 
         Pattern pattern = Pattern.compile("(.*?)(\\((\\d{4})\\))$"); // Match anything before parentheses and year inside

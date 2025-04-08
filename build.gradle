@@ -33,6 +33,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-csv
     implementation("org.apache.commons:commons-csv:1.5")
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
 }
 
 tasks.named('test') {

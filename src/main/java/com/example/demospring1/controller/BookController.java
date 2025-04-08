@@ -1,24 +1,39 @@
 package com.example.demospring1.controller;
 
-import com.example.demospring1.service.CsvUploadService;
+import com.example.demospring1.persistence.entity.Book;
+import com.example.demospring1.service.BookService;
 
+import com.example.demospring1.service.dto.BookDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/book")
 public class BookController {
-    private final CsvUploadService csvUploadService;
+    private final BookService bookService;
 
     @Autowired
-    public BookController(CsvUploadService csvUploadService) {
-        this.csvUploadService = csvUploadService;
+    public BookController(BookService bookService) {
+
+        this.bookService = bookService;
     }
 
-    @GetMapping
-    public String test() {
+    @GetMapping("/{id}")
+    public Book getBook(@PathVariable Long id) {
+        return bookService.getBook(id);
+    }
 
-        return "test";
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<String> createBook(@RequestBody BookDto bookDto) {
+        try {
+            bookService.createBookFromDto(bookDto);
+            return ResponseEntity.ok("Book created successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
 }

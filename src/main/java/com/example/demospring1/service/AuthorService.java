@@ -43,19 +43,15 @@ public class AuthorService {
                 continue;
             }
 
-            // Check if author is already in processedAuthors
-            Author author = processedAuthors.get(name);
-            if (author == null) {
-                if (existingAuthorNames.contains(name)) {
-                    // Author exists in database, fetch and cache it
-                    author = findByName(name);
-                } else {
-                    // Create a new transient Author and cache it
-                    author = new Author();
-                    author.setName(name);
-                    authors.add(author);
-                }
-                processedAuthors.put(name, author); // Cache the author for future use
+            Author author;
+            if (processedAuthors.containsKey(name)) {
+                author = processedAuthors.get(name);
+            } else {
+                // Create a new transient Author and cache it
+                author = new Author();
+                author.setName(name);
+                authors.add(author);
+                processedAuthors.put(name, author);
             }
 
             setupBookAuthors(book, bookAuthors, author);

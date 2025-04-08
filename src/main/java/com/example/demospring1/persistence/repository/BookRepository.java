@@ -24,4 +24,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             FROM Book b
             """)
     List<String> findAllBookIds();
+
+    Book findBookById(Long id);
 }

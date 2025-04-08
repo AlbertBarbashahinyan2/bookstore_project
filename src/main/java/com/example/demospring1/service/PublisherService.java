@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.example.demospring1.service.BookGenreService.setupBookGenres;
 import static com.example.demospring1.service.BookPublisherService.setupBookPublishers;
 import static com.example.demospring1.service.CsvUploadService.LOGGER;
 
@@ -44,20 +45,17 @@ public class PublisherService {
                 continue;
             }
 
-            // Check if author is already in processedAuthors
-            Publisher publisher = processedPublishers.get(name);
-            if (publisher == null) {
-                if (existingPublisherNames.contains(name)) {
-                    // Author exists in database, fetch and cache it
-                    publisher = findByName(name);
-                } else {
-                    // Create a new transient Author and cache it
-                    publisher = new Publisher();
-                    publisher.setName(name);
-                    publishers.add(publisher);
-                }
-                processedPublishers.put(name, publisher); // Cache the author for future use
+            Publisher publisher;
+            if (processedPublishers.containsKey(name)) {
+                publisher = processedPublishers.get(name);
+            } else {
+                // Create a new transient Publisher and cache it
+                publisher = new Publisher();
+                publisher.setName(name);
+                publishers.add(publisher);
+                processedPublishers.put(name, publisher);
             }
+            processedPublishers.put(name, publisher); // Cache the publisher for future use
 
             setupBookPublishers(book, bookPublishers, publisher);
 

@@ -15,14 +15,14 @@ import static com.example.demospring1.service.CsvUploadService.LOGGER;
 @Service
 @RequiredArgsConstructor
 public class SettingService {
-    
+
     private final SettingRepository settingRepository;
 
     public void save(Setting setting) {
         settingRepository.save(setting);
     }
 
-    public List<String> getAllSettingNames(){
+    public List<String> getAllSettingNames() {
         return settingRepository.findAllSettingNames();
     }
 
@@ -35,8 +35,8 @@ public class SettingService {
     }
 
     void processSettingsAndBookSettings(String[] settingNames, Map<String, Setting> processedSettings,
-                                    Set<String> existingSettingNames, List<Setting> settings, Book book,
-                                    List<BookSetting> bookSettings) {
+                                        Set<String> existingSettingNames, List<Setting> settings, Book book,
+                                        List<BookSetting> bookSettings) {
         for (String name : settingNames) {
             name = name.trim();
             if (name.isBlank()) {
@@ -44,23 +44,19 @@ public class SettingService {
                 continue;
             }
 
-            // Check if author is already in processedAuthors
-            Setting setting = processedSettings.get(name);
-            if (setting == null) {
-                if (existingSettingNames.contains(name)) {
-                    // Author exists in database, fetch and cache it
-                    setting = findByName(name);
-                } else {
-                    // Create a new transient Author and cache it
-                    setting = new Setting();
-                    setting.setName(name);
-                    settings.add(setting);
-                }
-                processedSettings.put(name, setting); // Cache the author for future use
+            Setting setting;
+            if (processedSettings.containsKey(name)) {
+                // Author exists in database, fetch and cache it
+                setting = processedSettings.get(name);
+            } else {
+                // Create a new transient Setting and cache it
+                setting = new Setting();
+                setting.setName(name);
+                settings.add(setting);
+                processedSettings.put(name, setting); // Cache the setting for future use
             }
 
             setupBookSettings(book, bookSettings, setting);
-
         }
     }
 }

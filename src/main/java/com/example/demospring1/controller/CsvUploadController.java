@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/book")
+@RequestMapping("/upload")
 public class CsvUploadController {
 
     private final CsvUploadService csvUploadService;
@@ -19,7 +19,7 @@ public class CsvUploadController {
         this.csvUploadService = csvUploadService;
     }
 
-    @PostMapping("/upload")
+    @PostMapping
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
             csvUploadService.processCsv(file);

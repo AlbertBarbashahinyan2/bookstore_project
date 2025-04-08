@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,6 +77,7 @@ public class CsvUploadService {
                     .withQuoteMode(QuoteMode.NON_NUMERIC)
                     .withTrim());
 
+            int count = 0;
 
             for (CSVRecord record : csvParser) {
 
@@ -115,7 +119,7 @@ public class CsvUploadService {
                             existingAuthorNames, authors, book, bookAuthors);
 
                     genreService.processGenresAndBookGenres(genreNames, processedGenres,
-                            existingGenreNames, genres, book, bookGenres);
+                            book, bookGenres, genres);
 
                     publisherService.processPublishersAndBookPublishers(publisherNames,
                             processedPublishers, existingPublisherNames, publishers, book, bookPublishers);
@@ -126,7 +130,7 @@ public class CsvUploadService {
                     awardService.processAwardsAndBookAwards(awardNames, processedAwards,
                             existingAwardNames, awards, book, bookAwards);
 
-                    ratingService.setupRatings( rating, numRatings, likedPercent, ratingsByStars, book);
+                    ratingService.setupRatings(rating, numRatings, likedPercent, ratingsByStars, book);
 
                     books.add(book);
                     seenBookIds.add(bookId); // Prevent re-processing within the same file
@@ -134,14 +138,13 @@ public class CsvUploadService {
                     LOGGER.log(Level.WARNING, "Error processing record: " + record, e);
                 }
 
-                if (books.size() > 500 || authors.size() > 500 || bookAuthors.size() > 500
-                        || genres.size() > 500 || bookGenres.size() > 1000 || publishers.size() > 500
-                        || bookPublishers.size() > 500 || settings.size() > 500 || bookSettings.size() > 500
-                        || awards.size() > 500 || bookAwards.size() > 500 ){
+                if (count > 500) {
                     saveBatch(books, authors, bookAuthors, genres, bookGenres,
                             publishers, bookPublishers, settings, bookSettings,
                             awards, bookAwards);
+                    count = 0; // Reset count after saving
                 }
+                count++;
             }
 
             saveBatch(books, authors, bookAuthors, genres, bookGenres,

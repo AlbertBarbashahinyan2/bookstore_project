@@ -30,7 +30,7 @@ public class Book {
     @Column(name = "pages")
     private Integer pages;
 
-    @Column(name = "description", length = 2500)
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
