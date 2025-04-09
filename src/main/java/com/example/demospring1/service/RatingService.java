@@ -4,6 +4,7 @@ import com.example.demospring1.persistence.entity.Book;
 import com.example.demospring1.persistence.entity.Rating;
 import com.example.demospring1.persistence.repository.RatingRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public class RatingService {
         ratingRepository.saveAll(ratings);
     }
 
-    void setupRatings(String rating, String numRatings, String likedPercent,
-                      String[] ratingsByStars, Book book) {
+    void processRatings(String rating, String numRatings, String likedPercent,
+                        String[] ratingsByStars, Book book) {
         Rating ratingObj = new Rating();
 
         if (rating == null || rating.isBlank()) {
@@ -29,7 +30,6 @@ public class RatingService {
                 ratingObj.setRating(ratingNumerical);
             } else {
                 throw new IllegalArgumentException("Invalid rating data");
-//                ratingObj.setRating(null);
             }
         }
 
@@ -49,7 +49,6 @@ public class RatingService {
                 ratingObj.setLikedPercent(likedPercentNumerical);
             } else {
                 throw new IllegalArgumentException("Invalid liked percent data");
-//                ratingObj.setLikedPercent(null);
             }
         }
 
@@ -65,20 +64,82 @@ public class RatingService {
                 if (!ratingsByStar.isBlank()) {
                     ratingsByStarNumerical = Integer.parseInt(ratingsByStar);
                 }
-                if (i == 0)
-                    ratingObj.setFiveStarRatings(ratingsByStarNumerical);
-                if (i == 1)
-                    ratingObj.setFourStarRatings(ratingsByStarNumerical);
-                if (i == 2)
-                    ratingObj.setThreeStarRatings(ratingsByStarNumerical);
-                if (i == 3)
-                    ratingObj.setTwoStarRatings(ratingsByStarNumerical);
-                if (i == 4)
-                    ratingObj.setOneStarRatings(ratingsByStarNumerical);
+                switch (i) {
+                    case 0 -> ratingObj.setFiveStarRatings(ratingsByStarNumerical);
+                    case 1 -> ratingObj.setFourStarRatings(ratingsByStarNumerical);
+                    case 2 -> ratingObj.setThreeStarRatings(ratingsByStarNumerical);
+                    case 3 -> ratingObj.setTwoStarRatings(ratingsByStarNumerical);
+                    case 4 -> ratingObj.setOneStarRatings(ratingsByStarNumerical);
+                }
             }
         }
 
         ratingObj.setBook(book);
         book.setRating(ratingObj);
+    }
+
+    void setupRatings(int[] ratingsByStars, Book book) {
+        Rating ratingObj;
+        if (book.getRating() != null) {
+            ratingObj = book.getRating();
+        } else {
+            ratingObj = new Rating();
+        }
+        if (ratingsByStars != null && ratingsByStars.length != 0) {
+            if (ratingsByStars.length != 5) {
+                throw new IllegalArgumentException("Invalid ratings by stars data");
+            }
+            for (int i = 0; i < ratingsByStars.length; i++) {
+                int ratingsByStarNumerical = ratingsByStars[i];
+                switch (i) {
+                    case 0 -> ratingObj.setFiveStarRatings(ratingsByStarNumerical);
+                    case 1 -> ratingObj.setFourStarRatings(ratingsByStarNumerical);
+                    case 2 -> ratingObj.setThreeStarRatings(ratingsByStarNumerical);
+                    case 3 -> ratingObj.setTwoStarRatings(ratingsByStarNumerical);
+                    case 4 -> ratingObj.setOneStarRatings(ratingsByStarNumerical);
+                }
+            }
+
+            int numRatings = ratingObj.getFiveStarRatings() + ratingObj.getFourStarRatings() +
+                    ratingObj.getThreeStarRatings() + ratingObj.getTwoStarRatings() +
+                    ratingObj.getOneStarRatings();
+            ratingObj.setNumRatings(numRatings);
+
+            float rating = Math.round(
+                    (ratingObj.getFiveStarRatings() * 5 + ratingObj.getFourStarRatings() * 4 +
+                            ratingObj.getThreeStarRatings() * 3 + ratingObj.getTwoStarRatings() * 2 +
+                            ratingObj.getOneStarRatings()) * 100f / numRatings) / 100f;
+            ratingObj.setRating(rating);
+
+            int likedPercent = Math.round(
+                    (ratingObj.getFiveStarRatings() + ratingObj.getFourStarRatings() +
+                            ratingObj.getThreeStarRatings()) * 100f / numRatings );
+            ratingObj.setLikedPercent(likedPercent);
+        }
+
+        ratingObj.setBook(book);
+        book.setRating(ratingObj);
+    }
+
+    void addRatingToBook(int star, Book book) {
+        if (star < 1 || star > 5) {
+            throw new IllegalArgumentException("Invalid star rating. Must be between 1 and 5.");
+        }
+        Rating rating = book.getRating();
+        switch (star) {
+            case 5 -> rating.setFiveStarRatings(rating.getFiveStarRatings() + 1);
+            case 4 -> rating.setFourStarRatings(rating.getFourStarRatings() + 1);
+            case 3 -> rating.setThreeStarRatings(rating.getThreeStarRatings() + 1);
+            case 2 -> rating.setTwoStarRatings(rating.getTwoStarRatings() + 1);
+            default -> rating.setOneStarRatings(rating.getOneStarRatings() + 1);
+        }
+        int[] ratingsByStars = {
+                rating.getFiveStarRatings(),
+                rating.getFourStarRatings(),
+                rating.getThreeStarRatings(),
+                rating.getTwoStarRatings(),
+                rating.getOneStarRatings()
+        };
+        setupRatings(ratingsByStars, book);
     }
 }

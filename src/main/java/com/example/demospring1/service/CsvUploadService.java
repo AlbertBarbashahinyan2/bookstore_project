@@ -15,9 +15,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,11 +56,6 @@ public class CsvUploadService {
         List<BookPublisher> bookPublishers = new ArrayList<>();
         List<BookSetting> bookSettings = new ArrayList<>();
         List<BookAward> bookAwards = new ArrayList<>();
-        Set<String> existingAuthorNames = new HashSet<>(authorService.getAllAuthorNames());
-        Set<String> existingGenreNames = new HashSet<>(genreService.getAllGenreNames());
-        Set<String> existingPublisherNames = new HashSet<>(publisherService.getAllPublisherNames());
-        Set<String> existingSettingNames = new HashSet<>(settingService.getAllSettingNames());
-        Set<String> existingAwardNames = new HashSet<>(awardService.getAllAwardNames());
         Set<String> existingBookIds = new HashSet<>(bookService.getAllBookIds()); // Fetch all existing book IDs
         Set<String> seenBookIds = new HashSet<>(); // Track duplicates in the CSV
 
@@ -116,21 +108,21 @@ public class CsvUploadService {
                             series, pages, price, language, edition, bookFormat, isbn);
 
                     authorService.processAuthorsAndBookAuthors(authorNames, processedAuthors,
-                            existingAuthorNames, authors, book, bookAuthors);
+                            authors, book, bookAuthors);
 
                     genreService.processGenresAndBookGenres(genreNames, processedGenres,
                             book, bookGenres, genres);
 
                     publisherService.processPublishersAndBookPublishers(publisherNames,
-                            processedPublishers, existingPublisherNames, publishers, book, bookPublishers);
+                            processedPublishers, publishers, book, bookPublishers);
 
                     settingService.processSettingsAndBookSettings(settingNames, processedSettings,
-                            existingSettingNames, settings, book, bookSettings);
+                            settings, book, bookSettings);
 
                     awardService.processAwardsAndBookAwards(awardNames, processedAwards,
-                            existingAwardNames, awards, book, bookAwards);
+                            awards, book, bookAwards);
 
-                    ratingService.setupRatings(rating, numRatings, likedPercent, ratingsByStars, book);
+                    ratingService.processRatings(rating, numRatings, likedPercent, ratingsByStars, book);
 
                     books.add(book);
                     seenBookIds.add(bookId); // Prevent re-processing within the same file

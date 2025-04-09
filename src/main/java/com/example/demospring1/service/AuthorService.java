@@ -34,8 +34,7 @@ public class AuthorService {
     }
 
     void processAuthorsAndBookAuthors(String[] authorNames, Map<String, Author> processedAuthors,
-                                      Set<String> existingAuthorNames, List<Author> authors, Book book,
-                                      List<BookAuthor> bookAuthors) {
+                                      List<Author> authors, Book book, List<BookAuthor> bookAuthors) {
         for (String name : authorNames) {
             name = name.trim();
             if (name.isBlank()) {

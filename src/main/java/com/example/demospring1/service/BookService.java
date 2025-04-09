@@ -36,6 +36,15 @@ public class BookService {
     private final RatingService ratingService;
 
     @Transactional
+    public void addRatingToBook(int star, String bookId) {
+        Book book = bookRepository.getByBookId(bookId);
+        if (book == null) {
+            throw new IllegalArgumentException("Book not found with id: " + bookId);
+        }
+        ratingService.addRatingToBook(star, book);
+    }
+
+    @Transactional
     public void createBookFromDto(BookDto dto) {
         if (bookRepository.existsByBookId(dto.getBookId())) {
             throw new IllegalArgumentException("Book already exists with id: " + dto.getBookId());
@@ -173,10 +182,9 @@ public class BookService {
 
 
         if(dto.getRatingsByStars() == null) {
-            dto.setRatingsByStars(new ArrayList<>());
+            dto.setRatingsByStars(new int[5]);
         }
-        ratingService.setupRatings(dto.getRating(), dto.getNumRatings(),
-                dto.getLikedPercent(), dto.getRatingsByStars().toArray(new String[0]), book);
+        ratingService.setupRatings(dto.getRatingsByStars(), book);
 
         bookRepository.save(book);
     }

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.example.demospring1.service.BookSettingService.setupBookSettings;
 import static com.example.demospring1.service.CsvUploadService.LOGGER;
@@ -35,8 +34,7 @@ public class SettingService {
     }
 
     void processSettingsAndBookSettings(String[] settingNames, Map<String, Setting> processedSettings,
-                                        Set<String> existingSettingNames, List<Setting> settings, Book book,
-                                        List<BookSetting> bookSettings) {
+                                        List<Setting> settings, Book book, List<BookSetting> bookSettings) {
         for (String name : settingNames) {
             name = name.trim();
             if (name.isBlank()) {

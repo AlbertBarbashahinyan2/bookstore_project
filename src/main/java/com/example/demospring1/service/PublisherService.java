@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import static com.example.demospring1.service.BookGenreService.setupBookGenres;
 import static com.example.demospring1.service.BookPublisherService.setupBookPublishers;
 import static com.example.demospring1.service.CsvUploadService.LOGGER;
 
@@ -35,8 +33,8 @@ public class PublisherService {
         publisherRepository.saveAll(publishers);
     }
 
-    void processPublishersAndBookPublishers(String[] publisherNames, Map<String, Publisher> processedPublishers,
-                                            Set<String> existingPublisherNames, List<Publisher> publishers, Book book,
+    void processPublishersAndBookPublishers(String[] publisherNames, Map<String,
+            Publisher> processedPublishers, List<Publisher> publishers, Book book,
                                             List<BookPublisher> bookPublishers) {
         for (String name : publisherNames) {
             name = name.trim();

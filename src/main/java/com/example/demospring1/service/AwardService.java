@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,8 +38,7 @@ public class AwardService {
     }
 
     void processAwardsAndBookAwards(String[] awardNames, Map<String, Award> processedAwards,
-                                    Set<String> existingAwardNames, List<Award> awards, Book book,
-                                    List<BookAward> bookAwards) {
+                                    List<Award> awards, Book book, List<BookAward> bookAwards) {
         Map<String, Integer> awardsWithYears = parseAwards(awardNames);
         awardsWithYears.forEach((name, year) -> {
             name = name.trim();

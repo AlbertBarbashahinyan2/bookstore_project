@@ -22,10 +22,7 @@ public class BookDto {
     private String edition;
     private String bookFormat;
     private String isbn;
-    private String rating;
-    private String numRatings;
-    private String likedPercent;
-    private List<String> ratingsByStars;
+    private int[] ratingsByStars;
     private List<String> authors;
     private List<String> genres;
     private List<String> publishers;

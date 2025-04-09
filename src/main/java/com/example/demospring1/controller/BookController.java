@@ -16,7 +16,6 @@ public class BookController {
 
     @Autowired
     public BookController(BookService bookService) {
-
         this.bookService = bookService;
     }
 
@@ -31,6 +30,18 @@ public class BookController {
         try {
             bookService.createBookFromDto(bookDto);
             return ResponseEntity.ok("Book created successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/rate")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<String> rateBook(@RequestParam int star,
+                                           @RequestParam String bookId) {
+        try {
+            bookService.addRatingToBook(star, bookId);
+            return ResponseEntity.ok("Book rated successfully.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
