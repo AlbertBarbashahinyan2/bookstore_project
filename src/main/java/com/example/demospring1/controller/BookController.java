@@ -27,24 +27,19 @@ public class BookController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> createBook(@RequestBody BookDto bookDto) {
-        try {
-            bookService.createBookFromDto(bookDto);
-            return ResponseEntity.ok("Book created successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
+        return bookService.createBookFromDto(bookDto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<String> deleteBook(@PathVariable Long id) {
+        return bookService.deleteBook(id);
     }
 
     @PostMapping("/rate")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> rateBook(@RequestParam int star,
                                            @RequestParam String bookId) {
-        try {
-            bookService.addRatingToBook(star, bookId);
-            return ResponseEntity.ok("Book rated successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
+        return bookService.addRatingToBook(star, bookId);
     }
-
 }

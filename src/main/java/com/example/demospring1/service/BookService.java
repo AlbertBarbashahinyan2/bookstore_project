@@ -2,10 +2,10 @@ package com.example.demospring1.service;
 
 import com.example.demospring1.persistence.entity.*;
 
-import com.example.demospring1.persistence.entity.Character;
 import com.example.demospring1.persistence.repository.BookRepository;
 import com.example.demospring1.service.dto.BookDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,162 +34,169 @@ public class BookService {
     private final BookAwardService bookAwardService;
     private final SettingService settingService;
     private final BookSettingService bookSettingService;
-    private final CharacterService characterService;
-    private final BookCharacterService bookCharacterService;
     private final RatingService ratingService;
 
     @Transactional
-    public void addRatingToBook(int star, String bookId) {
+    public ResponseEntity<String> addRatingToBook(int star, String bookId) {
         Book book = bookRepository.getByBookId(bookId);
         if (book == null) {
-            throw new IllegalArgumentException("Book not found with id: " + bookId);
+            return ResponseEntity.badRequest().body("Book not found with id: " + bookId);
         }
-        ratingService.addRatingToBook(star, book);
+        try {
+            ratingService.addRatingToBook(star, book);
+            return ResponseEntity.ok("Book rated successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+
     }
 
     @Transactional
-    public void createBookFromDto(BookDto dto) {
+    public ResponseEntity<String> createBookFromDto(BookDto dto) {
         if (bookRepository.existsByBookId(dto.getBookId())) {
-            throw new IllegalArgumentException("Book already exists with id: " + dto.getBookId());
+            return ResponseEntity.badRequest().body("Book already exists with id: " + dto.getBookId());
         }
-
-        Book book = setupBook(
-                dto.getBookId(),
-                dto.getTitle(),
-                dto.getDescription(),
-                dto.getSeries(),
-                String.valueOf(dto.getPages()),
-                String.valueOf(dto.getPrice()),
-                dto.getLanguage(),
-                dto.getEdition(),
-                dto.getBookFormat(),
-                dto.getIsbn()
-        );
-
-
-
-        if (dto.getAuthors() != null) {
-            List<BookAuthor> bookAuthors = new ArrayList<>();
-            for (String name : dto.getAuthors()) {
-                if (name == null || name.trim().isBlank()) continue;
-                String cleanName = name.trim();
+        try {
+            Book book = setupBook(
+                    dto.getBookId(),
+                    dto.getTitle(),
+                    dto.getDescription(),
+                    dto.getSeries(),
+                    String.valueOf(dto.getPages()),
+                    String.valueOf(dto.getPrice()),
+                    dto.getLanguage(),
+                    dto.getEdition(),
+                    dto.getBookFormat(),
+                    dto.getIsbn()
+            );
 
 
-                Author author = authorService.findByName(cleanName);
-                if (author == null) {
-                    author = new Author();
-                    author.setName(cleanName);
-                    authorService.save(author);
+            if (dto.getAuthors() != null) {
+                List<BookAuthor> bookAuthors = new ArrayList<>();
+                for (String name : dto.getAuthors()) {
+                    if (name == null || name.trim().isBlank()) continue;
+                    String cleanName = name.trim();
+
+
+                    Author author = authorService.findByName(cleanName);
+                    if (author == null) {
+                        author = new Author();
+                        author.setName(cleanName);
+                        authorService.save(author);
+                    }
+
+                    setupBookAuthors(book, bookAuthors, author);
+
                 }
 
-                setupBookAuthors(book, bookAuthors, author);
-
+                bookAuthorService.saveAll(bookAuthors);
             }
 
-            bookAuthorService.saveAll(bookAuthors);
-        }
+            if (dto.getGenres() != null) {
 
-        if (dto.getGenres() != null) {
+                List<BookGenre> bookGenres = new ArrayList<>();
 
-            List<BookGenre> bookGenres = new ArrayList<>();
-
-            for (String name : dto.getGenres()) {
-                if (name == null || name.trim().isBlank()) continue;
-                String cleanName = name.trim();
+                for (String name : dto.getGenres()) {
+                    if (name == null || name.trim().isBlank()) continue;
+                    String cleanName = name.trim();
 
 
-                Genre genre = genreService.findByName(cleanName);
-                if (genre == null) {
-                    genre = new Genre();
-                    genre.setName(cleanName);
-                    genreService.save(genre);
+                    Genre genre = genreService.findByName(cleanName);
+                    if (genre == null) {
+                        genre = new Genre();
+                        genre.setName(cleanName);
+                        genreService.save(genre);
+                    }
+
+                    setupBookGenres(book, bookGenres, genre);
+
                 }
 
-                setupBookGenres(book, bookGenres, genre);
-
+                bookGenreService.saveAll(bookGenres);
             }
 
-            bookGenreService.saveAll(bookGenres);
-        }
+            if (dto.getPublishers() != null) {
 
-        if (dto.getPublishers() != null) {
+                List<BookPublisher> bookPublishers = new ArrayList<>();
 
-            List<BookPublisher> bookPublishers = new ArrayList<>();
-
-            for (String name : dto.getPublishers()) {
-                if (name == null || name.trim().isBlank()) continue;
-                String cleanName = name.trim();
+                for (String name : dto.getPublishers()) {
+                    if (name == null || name.trim().isBlank()) continue;
+                    String cleanName = name.trim();
 
 
-                Publisher publisher = publisherService.findByName(cleanName);
-                if (publisher == null) {
-                    publisher = new Publisher();
-                    publisher.setName(cleanName);
-                    publisherService.save(publisher);
+                    Publisher publisher = publisherService.findByName(cleanName);
+                    if (publisher == null) {
+                        publisher = new Publisher();
+                        publisher.setName(cleanName);
+                        publisherService.save(publisher);
+                    }
+
+                    setupBookPublishers(book, bookPublishers, publisher);
+
                 }
 
-                setupBookPublishers(book, bookPublishers, publisher);
-
+                bookPublisherService.saveAll(bookPublishers);
             }
 
-            bookPublisherService.saveAll(bookPublishers);
-        }
+            if (dto.getAwards() != null) {
 
-        if (dto.getAwards() != null) {
+                List<BookAward> bookAwards = new ArrayList<>();
 
-            List<BookAward> bookAwards = new ArrayList<>();
+                Map<String, Integer> processedAwards = parseAwards(dto.getAwards().toArray(new String[0]));
 
-            Map<String, Integer> processedAwards = parseAwards(dto.getAwards().toArray(new String[0]));
-
-            processedAwards.forEach((name, year) -> {
-                if (name == null || name.trim().isBlank()) return;
-                String cleanName = name.trim();
+                processedAwards.forEach((name, year) -> {
+                    if (name == null || name.trim().isBlank()) return;
+                    String cleanName = name.trim();
 
 
-                Award award = awardService.findByName(cleanName);
-                if (award == null) {
-                    award = new Award();
-                    award.setName(cleanName);
-                    awardService.save(award);
-                }
+                    Award award = awardService.findByName(cleanName);
+                    if (award == null) {
+                        award = new Award();
+                        award.setName(cleanName);
+                        awardService.save(award);
+                    }
 
-                setupBookAwards(book, bookAwards, award, year);
+                    setupBookAwards(book, bookAwards, award, year);
 
-            });
+                });
 
-            bookAwardService.saveAll(bookAwards);
-        }
-
-        if (dto.getSettings() != null) {
-
-            List<BookSetting> bookSettings = new ArrayList<>();
-
-            for (String name : dto.getSettings()) {
-                if (name == null || name.trim().isBlank()) continue;
-                String cleanName = name.trim();
-
-
-                Setting setting = settingService.findByName(cleanName);
-                if (setting == null) {
-                    setting = new Setting();
-                    setting.setName(cleanName);
-                    settingService.save(setting);
-                }
-
-                setupBookSettings(book, bookSettings, setting);
-
+                bookAwardService.saveAll(bookAwards);
             }
 
-            bookSettingService.saveAll(bookSettings);
+            if (dto.getSettings() != null) {
+
+                List<BookSetting> bookSettings = new ArrayList<>();
+
+                for (String name : dto.getSettings()) {
+                    if (name == null || name.trim().isBlank()) continue;
+                    String cleanName = name.trim();
+
+
+                    Setting setting = settingService.findByName(cleanName);
+                    if (setting == null) {
+                        setting = new Setting();
+                        setting.setName(cleanName);
+                        settingService.save(setting);
+                    }
+
+                    setupBookSettings(book, bookSettings, setting);
+
+                }
+
+                bookSettingService.saveAll(bookSettings);
+            }
+
+
+            if (dto.getRatingsByStars() == null || dto.getRatingsByStars().length != 5) {
+                dto.setRatingsByStars(new int[5]);
+            }
+            ratingService.setupRatings(dto.getRatingsByStars(), book);
+
+            bookRepository.save(book);
+            return ResponseEntity.ok("Book created successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
-
-
-        if(dto.getRatingsByStars() == null) {
-            dto.setRatingsByStars(new int[5]);
-        }
-        ratingService.setupRatings(dto.getRatingsByStars(), book);
-
-        bookRepository.save(book);
     }
 
 
@@ -210,8 +217,17 @@ public class BookService {
         bookRepository.saveAll(books);
     }
 
-    public void deleteBook(Long id) {
-        bookRepository.deleteById(id);
+    @Transactional
+    public ResponseEntity<String> deleteBook(Long id) {
+        if (bookRepository.findBookById(id) == null) {
+            return ResponseEntity.badRequest().body("Book not found");
+        }
+        try {
+            bookRepository.deleteById(id);
+            return ResponseEntity.ok("Book deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
     public void saveAll(List<Book> books) {
@@ -219,8 +235,8 @@ public class BookService {
     }
 
     Book setupBook(String bookId, String title, String description,
-                          String series, String pages, String price, String language,
-                          String edition, String bookFormat, String isbn) {
+                   String series, String pages, String price, String language,
+                   String edition, String bookFormat, String isbn) {
         Book book = new Book();
         book.setBookId(bookId);
         book.setTitle(title);
@@ -232,7 +248,7 @@ public class BookService {
 
         if (pages == null || pages.isBlank()) {
             book.setPages(null);
-        }else {
+        } else {
             pages = pages.trim().replaceAll("[^\\d]", "");
             int pagesInt = Integer.parseInt(pages);
             book.setPages(pagesInt);

@@ -17,7 +17,7 @@ public class BookDto {
     private String description;
     private String series;
     private Integer pages;
-    private Double price;
+    private Float price;
     private String language;
     private String edition;
     private String bookFormat;

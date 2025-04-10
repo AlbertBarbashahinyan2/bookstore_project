@@ -2,6 +2,7 @@ package com.example.demospring1.controller;
 
 import com.example.demospring1.persistence.entity.Book;
 import com.example.demospring1.service.CharacterService;
+import com.example.demospring1.service.dto.BookDto;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class CharacterController {
     }
 
     @GetMapping("/{characterName}")
-    public List<Book> getBooksWithCharacter(@PathVariable String characterName) {
+    public List<BookDto> getBooksWithCharacter(@PathVariable String characterName) {
         return characterService.getBooksByCharacterName(characterName);
     }
 }

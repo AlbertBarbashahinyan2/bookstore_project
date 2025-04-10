@@ -53,7 +53,7 @@ public class RatingService {
         }
 
 
-        if (ratingsByStars != null && ratingsByStars.length != 5) {
+        if (ratingsByStars != null && ratingsByStars.length == 5) {
             for (int i = 0; i < ratingsByStars.length; i++) {
                 String ratingsByStar = ratingsByStars[i];
                 ratingsByStar = ratingsByStar.trim().replaceAll("[^\\d]", "");
@@ -124,6 +124,16 @@ public class RatingService {
             throw new IllegalArgumentException("Invalid star rating. Must be between 1 and 5.");
         }
         Rating rating = book.getRating();
+        if (rating == null) {
+            System.out.println("Rating is null, creating a new one.");
+            rating = new Rating();
+            rating.setFiveStarRatings(0);
+            rating.setFourStarRatings(0);
+            rating.setThreeStarRatings(0);
+            rating.setTwoStarRatings(0);
+            rating.setOneStarRatings(0);
+            book.setRating(rating);
+        }
         switch (star) {
             case 5 -> rating.setFiveStarRatings(rating.getFiveStarRatings() + 1);
             case 4 -> rating.setFourStarRatings(rating.getFourStarRatings() + 1);

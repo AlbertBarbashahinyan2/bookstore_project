@@ -4,6 +4,8 @@ import com.example.demospring1.persistence.entity.Book;
 import com.example.demospring1.persistence.entity.BookCharacter;
 import com.example.demospring1.persistence.entity.Character;
 import com.example.demospring1.persistence.repository.CharacterRepository;
+import com.example.demospring1.service.dto.BookDto;
+import com.example.demospring1.service.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ import static com.example.demospring1.service.CsvUploadService.LOGGER;
 public class CharacterService {
     private final CharacterRepository characterRepository;
     private final BookCharacterService bookCharacterService;
+    private final BookMapper bookMapper;
 
     public void save(Character character) {
         characterRepository.save(character);
@@ -59,7 +62,7 @@ public class CharacterService {
 
     }
 
-    public List<Book> getBooksByCharacterName(String characterName) {
+    public List<BookDto> getBooksByCharacterName(String characterName) {
         characterName = characterName.trim();
         Character character = findByName(characterName);
         if (character == null) {
@@ -70,6 +73,6 @@ public class CharacterService {
         for (BookCharacter bookCharacter : bookCharacters) {
             books.add(bookCharacter.getBook());
         }
-        return books;
+        return bookMapper.toDtos(books);
     }
 }
