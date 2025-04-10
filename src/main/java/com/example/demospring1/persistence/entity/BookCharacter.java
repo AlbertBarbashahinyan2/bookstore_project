@@ -6,20 +6,21 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "book_author")
+@Table(name = "book_character")
 @Setter
 @Getter
 @ToString
-public class BookAuthor {
+public class BookCharacter {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
     private Book book;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "author_id")
-    private Author author;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "character_id")
+    private Character character;
 }

@@ -48,6 +48,9 @@ public class Book {
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<BookAward> awards;
 
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private List<BookCharacter> characters;
+
     @Column(name = "price")
     private Float price;
 

@@ -1,6 +1,7 @@
 package com.example.demospring1.service;
 
 import com.example.demospring1.persistence.entity.*;
+import com.example.demospring1.persistence.entity.Character;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.QuoteMode;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,8 @@ public class CsvUploadService {
     private final BookSettingService bookSettingService;
     private final AwardService awardService;
     private final BookAwardService bookAwardService;
+    private final CharacterService characterService;
+    private final BookCharacterService bookCharacterService;
     private final RatingService ratingService;
 
 
@@ -46,18 +49,20 @@ public class CsvUploadService {
         List<Publisher> publishers = new ArrayList<>();
         List<Setting> settings = new ArrayList<>();
         List<Award> awards = new ArrayList<>();
+        List<Character> characters = new ArrayList<>();
         Map<String, Author> processedAuthors = new HashMap<>();
         Map<String, Genre> processedGenres = new HashMap<>();
         Map<String, Publisher> processedPublishers = new HashMap<>();
         Map<String, Setting> processedSettings = new HashMap<>();
         Map<String, Award> processedAwards = new HashMap<>();
+        Map<String, Character> processedCharacters = new HashMap<>();
         List<BookAuthor> bookAuthors = new ArrayList<>();
         List<BookGenre> bookGenres = new ArrayList<>();
         List<BookPublisher> bookPublishers = new ArrayList<>();
         List<BookSetting> bookSettings = new ArrayList<>();
         List<BookAward> bookAwards = new ArrayList<>();
-        Set<String> existingBookIds = new HashSet<>(bookService.getAllBookIds()); // Fetch all existing book IDs
-        Set<String> seenBookIds = new HashSet<>(); // Track duplicates in the CSV
+        List<BookCharacter> bookCharacters = new ArrayList<>();
+        Set<String> seenBookIds = new HashSet<>(bookService.getAllBookIds()); // Track duplicates in the CSV
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
@@ -92,6 +97,7 @@ public class CsvUploadService {
                     String likedPercent = record.get("likedPercent").trim();
                     String[] authorNames = record.get("author").trim().split(",\\s*");
                     String[] genreNames = record.get("genres").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
+                    String[] characterNames = record.get("characters").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
                     String[] publisherNames = record.get("publisher").trim().split("/\\s*");
                     String[] settingNames = record.get("setting").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
                     String[] awardNames = record.get("awards").trim().replaceAll("[\\[\\]]", "")
@@ -99,7 +105,7 @@ public class CsvUploadService {
                             .replaceAll("(?<!\\\\)\"(.*?)\"(?!\\\\)", "$1").split(",\\s*");
                     String[] ratingsByStars = record.get("ratingsByStars").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
 
-                    if (existingBookIds.contains(bookId) || seenBookIds.contains(bookId)) {
+                    if (seenBookIds.contains(bookId)) {
                         System.out.println("Duplicate book found in CSV or DB, skipping: " + bookId);
                         continue;
                     }
@@ -122,6 +128,9 @@ public class CsvUploadService {
                     awardService.processAwardsAndBookAwards(awardNames, processedAwards,
                             awards, book, bookAwards);
 
+                    characterService.processCharactersAndBookCharacters(characterNames, processedCharacters,
+                            book, bookCharacters, characters);
+
                     ratingService.processRatings(rating, numRatings, likedPercent, ratingsByStars, book);
 
                     books.add(book);
@@ -133,7 +142,7 @@ public class CsvUploadService {
                 if (count > 500) {
                     saveBatch(books, authors, bookAuthors, genres, bookGenres,
                             publishers, bookPublishers, settings, bookSettings,
-                            awards, bookAwards);
+                            awards, bookAwards, characters, bookCharacters);
                     count = 0; // Reset count after saving
                 }
                 count++;
@@ -141,7 +150,7 @@ public class CsvUploadService {
 
             saveBatch(books, authors, bookAuthors, genres, bookGenres,
                     publishers, bookPublishers, settings, bookSettings,
-                    awards, bookAwards);
+                    awards, bookAwards, characters, bookCharacters);
 
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Failed to process CSV file", ex);
@@ -160,7 +169,9 @@ public class CsvUploadService {
             List<Setting> settings,
             List<BookSetting> bookSettings,
             List<Award> awards,
-            List<BookAward> bookAwards
+            List<BookAward> bookAwards,
+            List<Character> characters,
+            List<BookCharacter> bookCharacters
     ) {
         if (!authors.isEmpty()) {
             authorService.saveAll(authors);
@@ -214,6 +225,16 @@ public class CsvUploadService {
         if (!bookAwards.isEmpty()) {
             bookAwardService.saveAll(bookAwards);
             bookAwards.clear(); // Clear to release memory
+        }
+
+        if (!characters.isEmpty()) {
+            characterService.saveAll(characters);
+            characters.clear(); // Clear to release memory
+        }
+
+        if (!bookCharacters.isEmpty()) {
+            bookCharacterService.saveAll(bookCharacters);
+            bookCharacters.clear(); // Clear to release memory
         }
     }
 }

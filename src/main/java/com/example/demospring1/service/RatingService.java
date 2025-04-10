@@ -53,10 +53,7 @@ public class RatingService {
         }
 
 
-        if (ratingsByStars != null && ratingsByStars.length != 0) {
-            if (ratingsByStars.length != 5) {
-                throw new IllegalArgumentException("Invalid ratings by stars data");
-            }
+        if (ratingsByStars != null && ratingsByStars.length != 5) {
             for (int i = 0; i < ratingsByStars.length; i++) {
                 String ratingsByStar = ratingsByStars[i];
                 ratingsByStar = ratingsByStar.trim().replaceAll("[^\\d]", "");
@@ -73,6 +70,7 @@ public class RatingService {
                 }
             }
         }
+
 
         ratingObj.setBook(book);
         book.setRating(ratingObj);
