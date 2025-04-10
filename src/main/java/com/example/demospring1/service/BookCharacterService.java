@@ -30,4 +30,8 @@ public class BookCharacterService {
         bookCharacter.setCharacter(character);
         bookCharacters.add(bookCharacter);
     }
+
+    public List<BookCharacter> getAllByCharacter(Character character) {
+        return bookCharacterRepository.findAllByCharacter(character);
+    }
 }

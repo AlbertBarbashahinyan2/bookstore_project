@@ -7,6 +7,7 @@ import com.example.demospring1.persistence.repository.CharacterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import static com.example.demospring1.service.CsvUploadService.LOGGER;
 @RequiredArgsConstructor
 public class CharacterService {
     private final CharacterRepository characterRepository;
+    private final BookCharacterService bookCharacterService;
 
     public void save(Character character) {
         characterRepository.save(character);
@@ -55,5 +57,19 @@ public class CharacterService {
             setupBookCharacters(book, bookCharacters, character);
         }
 
+    }
+
+    public List<Book> getBooksByCharacterName(String characterName) {
+        characterName = characterName.trim();
+        Character character = findByName(characterName);
+        if (character == null) {
+            throw new IllegalArgumentException("Character not found with name: " + characterName);
+        }
+        List<BookCharacter> bookCharacters = bookCharacterService.getAllByCharacter(character);
+        List<Book> books = new ArrayList<>();
+        for (BookCharacter bookCharacter : bookCharacters) {
+            books.add(bookCharacter.getBook());
+        }
+        return books;
     }
 }

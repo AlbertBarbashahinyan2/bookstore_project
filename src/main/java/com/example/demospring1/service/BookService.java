@@ -2,6 +2,7 @@ package com.example.demospring1.service;
 
 import com.example.demospring1.persistence.entity.*;
 
+import com.example.demospring1.persistence.entity.Character;
 import com.example.demospring1.persistence.repository.BookRepository;
 import com.example.demospring1.service.dto.BookDto;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,8 @@ public class BookService {
     private final BookAwardService bookAwardService;
     private final SettingService settingService;
     private final BookSettingService bookSettingService;
+    private final CharacterService characterService;
+    private final BookCharacterService bookCharacterService;
     private final RatingService ratingService;
 
     @Transactional

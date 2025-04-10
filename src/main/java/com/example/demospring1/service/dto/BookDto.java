@@ -28,4 +28,6 @@ public class BookDto {
     private List<String> publishers;
     private List<String> awards;
     private List<String> settings;
+    private List<String> characters;
+
 }
