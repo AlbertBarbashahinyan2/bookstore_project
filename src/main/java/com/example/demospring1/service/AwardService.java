@@ -13,13 +13,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.example.demospring1.service.BookAwardService.setupBookAwards;
 import static com.example.demospring1.service.CsvUploadService.LOGGER;
 
 @Service
 @RequiredArgsConstructor
 public class AwardService {
     private final AwardRepository awardRepository;
+    private final BookAwardService bookAwardService;
 
     public void save(Award award) {
         awardRepository.save(award);
@@ -58,13 +58,13 @@ public class AwardService {
                     processedAwards.put(name, award); // Cache the award for future use
                 }
 
-            setupBookAwards(book, bookAwards, award, year);
+            bookAwardService.setupBookAwards(book, bookAwards, award, year);
 
         });
 
     }
 
-    static Map<String, Integer> parseAwards(String[] awards) {
+    Map<String, Integer> parseAwards(String[] awards) {
         Map<String, Integer> awardYearMap = new HashMap<>();
 
         Pattern pattern = Pattern.compile("(.*?)(\\((\\d{4})\\))$"); // Match anything before parentheses and year inside

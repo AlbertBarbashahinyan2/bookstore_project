@@ -20,7 +20,7 @@ public class BookSettingService {
         bookSettingRepository.saveAll(bookSetting);
     }
 
-    static void setupBookSettings(Book book, List<BookSetting> bookSettings, Setting setting) {
+    void setupBookSettings(Book book, List<BookSetting> bookSettings, Setting setting) {
         // Create the BookAuthor relationship
         BookSetting bookSetting = new BookSetting();
         bookSetting.setBook(book);

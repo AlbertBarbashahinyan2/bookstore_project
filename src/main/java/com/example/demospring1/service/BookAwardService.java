@@ -23,7 +23,7 @@ public class BookAwardService {
         bookAwardRepository.saveAll(bookAwards);
     }
 
-    static void setupBookAwards(Book book, List<BookAward> bookAwards, Award award, Integer year) {
+    void setupBookAwards(Book book, List<BookAward> bookAwards, Award award, Integer year) {
         // Create the BookAward relationship
         BookAward bookAward = new BookAward();
         bookAward.setBook(book);

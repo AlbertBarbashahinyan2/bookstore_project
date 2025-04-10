@@ -23,7 +23,7 @@ public class BookGenreService {
         bookGenreRepository.saveAll(bookGenre);
     }
 
-    static void setupBookGenres(Book book, List<BookGenre> bookGenres, Genre genre) {
+    void setupBookGenres(Book book, List<BookGenre> bookGenres, Genre genre) {
         // Create the BookGenre relationship
         BookGenre bookGenre = new BookGenre();
         bookGenre.setBook(book);

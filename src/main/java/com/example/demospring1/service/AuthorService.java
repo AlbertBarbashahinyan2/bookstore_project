@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.example.demospring1.service.BookAuthorService.setupBookAuthors;
 import static com.example.demospring1.service.CsvUploadService.LOGGER;
 
 @Service
 @RequiredArgsConstructor
 public class AuthorService {
     private final AuthorRepository authorRepository;
+    private final BookAuthorService bookAuthorService;
 
     public void save(Author author) {
         authorRepository.save(author);
@@ -53,7 +53,7 @@ public class AuthorService {
                 processedAuthors.put(name, author);
             }
 
-            setupBookAuthors(book, bookAuthors, author);
+            bookAuthorService.setupBookAuthors(book, bookAuthors, author);
 
         }
     }

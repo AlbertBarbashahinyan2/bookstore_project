@@ -22,7 +22,7 @@ public class BookPublisherService {
         bookPublisherRepository.saveAll(bookPublisher);
     }
 
-    static void setupBookPublishers(Book book, List<BookPublisher> bookPublishers, Publisher publisher) {
+    void setupBookPublishers(Book book, List<BookPublisher> bookPublishers, Publisher publisher) {
         // Create the BookAuthor relationship
         BookPublisher bookPublisher = new BookPublisher();
         bookPublisher.setBook(book);

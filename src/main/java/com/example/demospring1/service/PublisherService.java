@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.demospring1.service.BookPublisherService.setupBookPublishers;
 import static com.example.demospring1.service.CsvUploadService.LOGGER;
 
 @Service
@@ -16,6 +15,7 @@ import static com.example.demospring1.service.CsvUploadService.LOGGER;
 public class PublisherService {
 
     private final PublisherRepository publisherRepository;
+    private final BookPublisherService bookPublisherService;
 
     public void save(Publisher publisher) {
         publisherRepository.save(publisher);
@@ -55,7 +55,7 @@ public class PublisherService {
             }
             processedPublishers.put(name, publisher); // Cache the publisher for future use
 
-            setupBookPublishers(book, bookPublishers, publisher);
+            bookPublisherService.setupBookPublishers(book, bookPublishers, publisher);
 
         }
 

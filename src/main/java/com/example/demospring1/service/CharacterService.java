@@ -1,5 +1,6 @@
 package com.example.demospring1.service;
 
+import com.example.demospring1.exception.CharacterNotFoundException;
 import com.example.demospring1.persistence.entity.Book;
 import com.example.demospring1.persistence.entity.BookCharacter;
 import com.example.demospring1.persistence.entity.Character;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.demospring1.service.BookCharacterService.setupBookCharacters;
 import static com.example.demospring1.service.CsvUploadService.LOGGER;
 
 @Service
@@ -57,7 +57,7 @@ public class CharacterService {
                 processedCharacters.put(name, character);
                 characters.add(character);
             }
-            setupBookCharacters(book, bookCharacters, character);
+            bookCharacterService.setupBookCharacters(book, bookCharacters, character);
         }
 
     }
@@ -66,7 +66,7 @@ public class CharacterService {
         characterName = characterName.trim();
         Character character = findByName(characterName);
         if (character == null) {
-            throw new IllegalArgumentException("Character not found with name: " + characterName);
+            throw new CharacterNotFoundException(characterName);
         }
         List<BookCharacter> bookCharacters = bookCharacterService.getAllByCharacter(character);
         List<Book> books = new ArrayList<>();

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.demospring1.service.BookSettingService.setupBookSettings;
 import static com.example.demospring1.service.CsvUploadService.LOGGER;
 
 @Service
@@ -16,6 +15,7 @@ import static com.example.demospring1.service.CsvUploadService.LOGGER;
 public class SettingService {
 
     private final SettingRepository settingRepository;
+    private final BookSettingService bookSettingService;
 
     public void save(Setting setting) {
         settingRepository.save(setting);
@@ -54,7 +54,7 @@ public class SettingService {
                 processedSettings.put(name, setting); // Cache the setting for future use
             }
 
-            setupBookSettings(book, bookSettings, setting);
+            bookSettingService.setupBookSettings(book, bookSettings, setting);
         }
     }
 }

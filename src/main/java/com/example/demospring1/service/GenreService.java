@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.demospring1.service.BookGenreService.setupBookGenres;
 import static com.example.demospring1.service.CsvUploadService.LOGGER;
 
 @Service
 @RequiredArgsConstructor
 public class GenreService {
     private final GenreRepository genreRepository;
+    private final BookGenreService bookGenreService;
 
     public void save(Genre genre) {
         genreRepository.save(genre);
@@ -50,7 +50,7 @@ public class GenreService {
                 processedGenres.put(name, genre);
                 genres.add(genre);
             }
-            setupBookGenres(book, bookGenres, genre);
+            bookGenreService.setupBookGenres(book, bookGenres, genre);
         }
 
     }

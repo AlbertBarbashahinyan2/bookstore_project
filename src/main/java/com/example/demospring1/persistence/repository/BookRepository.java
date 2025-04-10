@@ -12,8 +12,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     Book getByBookId(String bookId);
 
-    @Override
-    void deleteById(Long id);
+    void deleteByBookId(String bookId);
 
     @Query("SELECT CASE WHEN COUNT(b) > 0 THEN TRUE ELSE FALSE END FROM Book b WHERE b.bookId = :bookId")
     boolean existsByBookId(String bookId);

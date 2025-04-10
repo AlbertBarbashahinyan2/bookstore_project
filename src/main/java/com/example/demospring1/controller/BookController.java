@@ -19,27 +19,42 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    @GetMapping("/{id}")
-    public Book getBook(@PathVariable Long id) {
-        return bookService.getBook(id);
+    @GetMapping("/{bookId}")
+    public BookDto getBook(@PathVariable String bookId) {
+        return bookService.getBook(bookId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> createBook(@RequestBody BookDto bookDto) {
-        return bookService.createBookFromDto(bookDto);
+        try {
+            bookService.createBookFromDto(bookDto);
+            return ResponseEntity.ok("Book created successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{bookId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-        return bookService.deleteBook(id);
+    public ResponseEntity<String> deleteBook(@PathVariable String bookId) {
+        try {
+            bookService.deleteBook(bookId);
+            return ResponseEntity.ok("Book deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
     @PostMapping("/rate")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> rateBook(@RequestParam int star,
                                            @RequestParam String bookId) {
-        return bookService.addRatingToBook(star, bookId);
+        try {
+            bookService.addRatingToBook(star, bookId);
+            return ResponseEntity.ok("Book rated successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }

@@ -23,7 +23,7 @@ public class BookCharacterService {
         bookCharacterRepository.saveAll(bookCharacter);
     }
 
-    static void setupBookCharacters(Book book, List<BookCharacter> bookCharacters, Character character) {
+    void setupBookCharacters(Book book, List<BookCharacter> bookCharacters, Character character) {
         // Create the BookCharacter relationship
         BookCharacter bookCharacter = new BookCharacter();
         bookCharacter.setBook(book);
