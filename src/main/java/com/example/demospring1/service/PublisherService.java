@@ -25,6 +25,10 @@ public class PublisherService {
         return publisherRepository.findAllPublisherNames();
     }
 
+    public List<Publisher> findAll() {
+        return publisherRepository.findAll();
+    }
+
     public Publisher findByName(String name) {
         return publisherRepository.findByName(name);
     }

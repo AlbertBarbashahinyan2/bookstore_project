@@ -70,4 +70,10 @@ public class Book {
     @JoinColumn(name = "rating_id")
     private Rating rating;
 
+    @Column(name = "bbe_score")
+    private Integer bbeScore;
+
+    @Column(name = "bbe_votes")
+    private Integer bbeVotes;
+
 }

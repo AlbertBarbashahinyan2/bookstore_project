@@ -25,6 +25,10 @@ public class SettingService {
         return settingRepository.findAllSettingNames();
     }
 
+    public List<Setting> findAll() {
+        return settingRepository.findAll();
+    }
+
     public Setting findByName(String name) {
         return settingRepository.findByName(name);
     }

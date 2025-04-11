@@ -18,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +66,13 @@ public class CsvUploadService {
         List<BookCharacter> bookCharacters = new ArrayList<>();
         Set<String> seenBookIds = new HashSet<>(bookService.getAllBookIds()); // Track duplicates in the CSV
 
+        authorService.findAll().forEach(author -> processedAuthors.put(author.getName(), author));
+        genreService.findAll().forEach(genre -> processedGenres.put(genre.getName(), genre));
+        publisherService.findAll().forEach(publisher -> processedPublishers.put(publisher.getName(), publisher));
+        settingService.findAll().forEach(setting -> processedSettings.put(setting.getName(), setting));
+        characterService.findAll().forEach(character -> processedCharacters.put(character.getName(), character));
+        awardService.findAll().forEach(award -> processedAwards.put(award.getName(), award));
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
                     .withFirstRecordAsHeader()
@@ -95,11 +104,19 @@ public class CsvUploadService {
                     String rating = record.get("rating").trim();
                     String numRatings = record.get("numRatings").trim();
                     String likedPercent = record.get("likedPercent").trim();
+                    String bbeVotes = record.get("bbeVotes").trim();
+                    String bbeScore = record.get("bbeScore").trim();
                     String[] authorNames = record.get("author").trim().split(",\\s*");
                     String[] genreNames = record.get("genres").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
                     String[] characterNames = record.get("characters").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
                     String[] publisherNames = record.get("publisher").trim().split("/\\s*");
-                    String[] settingNames = record.get("setting").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
+                    Pattern pattern = Pattern.compile("([\"'])(.*?)(?<!\\\\)\\1");
+                    Matcher matcher = pattern.matcher(record.get("setting"));
+                    List<String> results = new ArrayList<>();
+                    while (matcher.find()) {
+                        results.add(matcher.group(2));
+                    }
+                    String[] settingNames = results.toArray(new String[0]);
                     String[] awardNames = record.get("awards").trim().replaceAll("[\\[\\]]", "")
                             .replaceAll("(?<!\\\\)'(.*?)'(?!\\\\)", "$1")
                             .replaceAll("(?<!\\\\)\"(.*?)\"(?!\\\\)", "$1").split(",\\s*");
@@ -111,7 +128,7 @@ public class CsvUploadService {
                     }
 
                     Book book = bookService.setupBook(bookId, title, description,
-                            series, pages, price, language, edition, bookFormat, isbn);
+                            series, pages, price, language, edition, bookFormat, isbn, bbeVotes, bbeScore);
 
                     authorService.processAuthorsAndBookAuthors(authorNames, processedAuthors,
                             authors, book, bookAuthors);

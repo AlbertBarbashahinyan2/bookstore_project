@@ -23,7 +23,7 @@ public class CsvUploadController {
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
             csvUploadService.processCsv(file);
-            return ResponseEntity.ok("File processing started...");
+            return ResponseEntity.ok("File processing complete successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }

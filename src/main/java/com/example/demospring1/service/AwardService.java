@@ -1,5 +1,6 @@
 package com.example.demospring1.service;
 
+import com.example.demospring1.persistence.entity.Author;
 import com.example.demospring1.persistence.entity.Award;
 import com.example.demospring1.persistence.entity.Book;
 import com.example.demospring1.persistence.entity.BookAward;
@@ -31,6 +32,10 @@ public class AwardService {
 
     public List<String> getAllAwardNames(){
         return awardRepository.findAllAwardNames();
+    }
+
+    public List<Award> findAll() {
+        return awardRepository.findAll();
     }
 
     public void saveAll(List<Award> awards) {

@@ -44,6 +44,8 @@ public class BookMapper {
         bookDto.setSettings(mapSettings(book));
         bookDto.setAwards(mapAwards(book));
         bookDto.setCharacters(mapCharacters(book));
+        bookDto.setBbeVotes(book.getBbeVotes());
+        bookDto.setBbeScore(book.getBbeScore());
         return bookDto;
     }
 

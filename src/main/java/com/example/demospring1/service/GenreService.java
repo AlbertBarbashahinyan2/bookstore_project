@@ -24,6 +24,10 @@ public class GenreService {
         return genreRepository.findAllGenreNames();
     }
 
+    public List<Genre> findAll() {
+        return genreRepository.findAll();
+    }
+
     public Genre findByName(String name) {
         return genreRepository.findByName(name);
     }

@@ -59,7 +59,9 @@ public class BookService {
                 dto.getLanguage(),
                 dto.getEdition(),
                 dto.getBookFormat(),
-                dto.getIsbn()
+                dto.getIsbn(),
+                String.valueOf(dto.getBbeVotes()),
+                String.valueOf(dto.getBbeScore())
         );
 
 
@@ -241,7 +243,7 @@ public class BookService {
 
     Book setupBook(String bookId, String title, String description,
                    String series, String pages, String price, String language,
-                   String edition, String bookFormat, String isbn) {
+                   String edition, String bookFormat, String isbn, String bbeVotes, String bbeScore) {
         Book book = new Book();
         book.setBookId(bookId);
         book.setTitle(title);
@@ -268,6 +270,23 @@ public class BookService {
                 price = price.substring(0, pointIndex).replaceAll("\\.", "") + price.substring(pointIndex);
             }
             book.setPrice(Float.parseFloat(price));
+        }
+
+        if (bbeVotes == null || bbeVotes.isBlank()) {
+            System.out.println("Empty or blank bbeVotes found, setting to null.");
+            book.setBbeVotes(null);
+        } else {
+            bbeVotes = bbeVotes.trim().replaceAll("[^\\d]", "");
+            int bbeVotesInt = Integer.parseInt(bbeVotes);
+            book.setBbeVotes(bbeVotesInt);
+        }
+
+        if (bbeScore == null || bbeScore.isBlank()) {
+            book.setBbeScore(null);
+        } else {
+            bbeScore = bbeScore.trim().replaceAll("[^\\d]", "");
+            int bbeScoreInt = Integer.parseInt(bbeScore);
+            book.setBbeScore(bbeScoreInt);
         }
 
         book.setLanguage(language == null || language.isBlank() ? null : language);
