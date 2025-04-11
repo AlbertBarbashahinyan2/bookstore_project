@@ -8,10 +8,12 @@ import com.example.demospring1.persistence.entity.Character;
 import com.example.demospring1.persistence.repository.BookRepository;
 import com.example.demospring1.service.dto.BookDto;
 import com.example.demospring1.service.mapper.BookMapper;
+import com.example.demospring1.service.parser.DateParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ public class BookService {
     private final BookCharacterService bookCharacterService;
     private final RatingService ratingService;
     private final BookMapper bookMapper;
+    private final DateParser dateParser;
 
     @Transactional
     public void addRatingToBook(int star, String bookId) {
@@ -61,7 +64,9 @@ public class BookService {
                 dto.getBookFormat(),
                 dto.getIsbn(),
                 String.valueOf(dto.getBbeVotes()),
-                String.valueOf(dto.getBbeScore())
+                String.valueOf(dto.getBbeScore()),
+                dto.getPublishDate(),
+                dto.getFirstPublishDate()
         );
 
 
@@ -243,7 +248,8 @@ public class BookService {
 
     Book setupBook(String bookId, String title, String description,
                    String series, String pages, String price, String language,
-                   String edition, String bookFormat, String isbn, String bbeVotes, String bbeScore) {
+                   String edition, String bookFormat, String isbn, String bbeVotes,
+                   String bbeScore, String publishDate, String firstPublishDate) {
         Book book = new Book();
         book.setBookId(bookId);
         book.setTitle(title);
@@ -273,7 +279,6 @@ public class BookService {
         }
 
         if (bbeVotes == null || bbeVotes.isBlank()) {
-            System.out.println("Empty or blank bbeVotes found, setting to null.");
             book.setBbeVotes(null);
         } else {
             bbeVotes = bbeVotes.trim().replaceAll("[^\\d]", "");
@@ -287,6 +292,20 @@ public class BookService {
             bbeScore = bbeScore.trim().replaceAll("[^\\d]", "");
             int bbeScoreInt = Integer.parseInt(bbeScore);
             book.setBbeScore(bbeScoreInt);
+        }
+
+        if (publishDate == null || publishDate.isBlank()) {
+            book.setPublishDate(null);
+        } else {
+            LocalDate publishDateParsed = dateParser.parseDateFlexible(publishDate);
+            book.setPublishDate(publishDateParsed);
+        }
+
+        if (firstPublishDate == null || firstPublishDate.isBlank()) {
+            book.setFirstPublishDate(null);
+        } else {
+            LocalDate firstPublishDateParsed = dateParser.parseDateFlexible(firstPublishDate);
+            book.setFirstPublishDate(firstPublishDateParsed);
         }
 
         book.setLanguage(language == null || language.isBlank() ? null : language);

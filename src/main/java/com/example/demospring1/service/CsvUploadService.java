@@ -106,6 +106,8 @@ public class CsvUploadService {
                     String likedPercent = record.get("likedPercent").trim();
                     String bbeVotes = record.get("bbeVotes").trim();
                     String bbeScore = record.get("bbeScore").trim();
+                    String publishDate = record.get("publishDate").trim();
+                    String firstPublishDate = record.get("firstPublishDate").trim();
                     String[] authorNames = record.get("author").trim().split(",\\s*");
                     String[] genreNames = record.get("genres").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
                     String[] characterNames = record.get("characters").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
@@ -128,7 +130,8 @@ public class CsvUploadService {
                     }
 
                     Book book = bookService.setupBook(bookId, title, description,
-                            series, pages, price, language, edition, bookFormat, isbn, bbeVotes, bbeScore);
+                            series, pages, price, language, edition, bookFormat, isbn,
+                            bbeVotes, bbeScore, publishDate, firstPublishDate);
 
                     authorService.processAuthorsAndBookAuthors(authorNames, processedAuthors,
                             authors, book, bookAuthors);

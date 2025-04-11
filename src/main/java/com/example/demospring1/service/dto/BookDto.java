@@ -2,6 +2,8 @@ package com.example.demospring1.service.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -31,5 +33,7 @@ public class BookDto {
     private List<String> characters;
     private Integer bbeVotes;
     private Integer bbeScore;
+    private String publishDate;
+    private String firstPublishDate;
 
 }

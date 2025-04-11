@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -75,5 +76,11 @@ public class Book {
 
     @Column(name = "bbe_votes")
     private Integer bbeVotes;
+
+    @Column(name = "publish_date")
+    private LocalDate publishDate;
+
+    @Column(name = "first_publish_date")
+    private LocalDate firstPublishDate;
 
 }
