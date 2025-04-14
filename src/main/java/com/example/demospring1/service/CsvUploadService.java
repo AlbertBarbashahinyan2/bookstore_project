@@ -159,7 +159,7 @@ public class CsvUploadService {
                     LOGGER.log(Level.WARNING, "Error processing record: " + record, e);
                 }
 
-                if (count > 500) {
+                if (count > 1000) {
                     saveBatch(books, authors, bookAuthors, genres, bookGenres,
                             publishers, bookPublishers, settings, bookSettings,
                             awards, bookAwards, characters, bookCharacters);

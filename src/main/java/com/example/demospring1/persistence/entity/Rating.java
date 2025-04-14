@@ -12,7 +12,7 @@ import lombok.ToString;
 @ToString
 public class Rating {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "rating")
