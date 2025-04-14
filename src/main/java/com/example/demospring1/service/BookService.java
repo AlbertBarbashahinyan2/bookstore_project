@@ -1,10 +1,12 @@
 package com.example.demospring1.service;
 
+import com.example.demospring1.exception.AuthorNotFoundException;
 import com.example.demospring1.exception.BookAlreadyExistsException;
 import com.example.demospring1.exception.BookNotFoundException;
 import com.example.demospring1.persistence.entity.*;
 
 import com.example.demospring1.persistence.entity.Character;
+import com.example.demospring1.persistence.repository.AuthorRepository;
 import com.example.demospring1.persistence.repository.BookRepository;
 import com.example.demospring1.service.dto.BookDto;
 import com.example.demospring1.service.mapper.BookMapper;
@@ -22,7 +24,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BookService {
     private final BookRepository bookRepository;
-    private final AuthorService authorService;
     private final BookAuthorService bookAuthorService;
     private final GenreService genreService;
     private final BookGenreService bookGenreService;
@@ -37,6 +38,7 @@ public class BookService {
     private final RatingService ratingService;
     private final BookMapper bookMapper;
     private final DateParser dateParser;
+    private final AuthorRepository authorRepository;
 
     @Transactional
     public void addRatingToBook(int star, String bookId) {
@@ -71,17 +73,14 @@ public class BookService {
 
 
         if (dto.getAuthors() != null) {
+            System.out.println("authors: " + dto.getAuthors());
             List<BookAuthor> bookAuthors = new ArrayList<>();
             for (String name : dto.getAuthors()) {
                 if (name == null || name.trim().isBlank()) continue;
                 String cleanName = name.trim();
-
-
-                Author author = authorService.findByName(cleanName);
+                Author author = authorRepository.findByName(cleanName);
                 if (author == null) {
-                    author = new Author();
-                    author.setName(cleanName);
-                    authorService.save(author);
+                    throw new AuthorNotFoundException(cleanName);
                 }
 
                 bookAuthorService.setupBookAuthors(book, bookAuthors, author);
@@ -98,7 +97,6 @@ public class BookService {
             for (String name : dto.getGenres()) {
                 if (name == null || name.trim().isBlank()) continue;
                 String cleanName = name.trim();
-
 
                 Genre genre = genreService.findByName(cleanName);
                 if (genre == null) {
@@ -218,12 +216,20 @@ public class BookService {
 
     }
 
-    public BookDto getBook(String bookId) {
+    public BookDto getBookDto(String bookId) {
         bookId = bookId.trim();
         if (bookRepository.getByBookId(bookId) == null) {
             throw new BookNotFoundException(bookId);
         }
         return bookMapper.toDto(bookRepository.getByBookId(bookId));
+    }
+
+    public Book getBook(String bookId) {
+        bookId = bookId.trim();
+        if (bookRepository.getByBookId(bookId) == null) {
+            throw new BookNotFoundException(bookId);
+        }
+        return bookRepository.getByBookId(bookId);
     }
 
     public List<String> getAllBookIds() {

@@ -1,6 +1,5 @@
 package com.example.demospring1.controller;
 
-import com.example.demospring1.persistence.entity.Book;
 import com.example.demospring1.service.BookService;
 
 import com.example.demospring1.service.dto.BookDto;
@@ -21,7 +20,7 @@ public class BookController {
 
     @GetMapping("/{bookId}")
     public BookDto getBook(@PathVariable String bookId) {
-        return bookService.getBook(bookId);
+        return bookService.getBookDto(bookId);
     }
 
     @PostMapping

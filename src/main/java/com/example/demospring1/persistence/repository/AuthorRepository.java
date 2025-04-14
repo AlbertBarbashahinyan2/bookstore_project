@@ -18,4 +18,7 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
 
     Author findByName(String name);
 
+    boolean existsByName(String name);
+
+    void deleteByName(String authorName);
 }
