@@ -22,7 +22,7 @@ public class Award {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "award")
+    @OneToMany(mappedBy = "award", cascade = CascadeType.PERSIST)
     private List<BookAward> awards;
 
 }

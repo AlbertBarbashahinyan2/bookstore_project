@@ -9,17 +9,25 @@ import com.example.demospring1.persistence.entity.Character;
 import com.example.demospring1.persistence.repository.AuthorRepository;
 import com.example.demospring1.persistence.repository.BookRepository;
 import com.example.demospring1.service.dto.BookDto;
+import com.example.demospring1.service.imagehandler.BookImageService;
 import com.example.demospring1.service.mapper.BookMapper;
 import com.example.demospring1.service.parser.DateParser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookService {
@@ -39,6 +47,15 @@ public class BookService {
     private final BookMapper bookMapper;
     private final DateParser dateParser;
     private final AuthorRepository authorRepository;
+    private final BookImageService bookImageService;
+
+    public List<BookDto> findAll(Specification<Book> spec) {
+        List<Book> books = bookRepository.findAll(spec);
+        if (books.isEmpty()) {
+            throw new BookNotFoundException("No books found");
+        }
+        return bookMapper.toDtos(books);
+    }
 
     @Transactional
     public void addRatingToBook(int star, String bookId) {
@@ -68,12 +85,11 @@ public class BookService {
                 String.valueOf(dto.getBbeVotes()),
                 String.valueOf(dto.getBbeScore()),
                 dto.getPublishDate(),
-                dto.getFirstPublishDate()
+                dto.getFirstPublishDate(),
+                dto.getImageUrl()
         );
 
-
         if (dto.getAuthors() != null) {
-            System.out.println("authors: " + dto.getAuthors());
             List<BookAuthor> bookAuthors = new ArrayList<>();
             for (String name : dto.getAuthors()) {
                 if (name == null || name.trim().isBlank()) continue;
@@ -232,6 +248,17 @@ public class BookService {
         return bookRepository.getByBookId(bookId);
     }
 
+    public byte[] getBookCover(String bookId) {
+        bookId = bookId.trim();
+        if (bookRepository.getByBookId(bookId) == null) {
+            throw new BookNotFoundException(bookId);
+        }
+        Book book = bookRepository.getByBookId(bookId);
+        Path path = Path.of(book.getCoverImagePath());
+        System.out.println(path);
+        return bookImageService.getImage(path);
+    }
+
     public List<String> getAllBookIds() {
         return bookRepository.findAllBookIds();
     }
@@ -255,7 +282,7 @@ public class BookService {
     Book setupBook(String bookId, String title, String description,
                    String series, String pages, String price, String language,
                    String edition, String bookFormat, String isbn, String bbeVotes,
-                   String bbeScore, String publishDate, String firstPublishDate) {
+                   String bbeScore, String publishDate, String firstPublishDate, String imageUrl) {
         Book book = new Book();
         book.setBookId(bookId);
         book.setTitle(title);
@@ -319,6 +346,21 @@ public class BookService {
         book.setBookFormat(bookFormat == null || bookFormat.isBlank() ? null : bookFormat);
         book.setIsbn(isbn.equals("9999999999999") ? null : isbn);
 
+
+        final ExecutorService executorService = Executors.newFixedThreadPool(20);
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            Path path = bookImageService.getImagePath(bookId, imageUrl);
+            if (path != null) {
+                bookImageService.processImage(imageUrl, path);
+//                book.setCoverImagePath(path.toString());
+            } else {
+                log.warn("Setting cover image path to null for book: {}", bookId);
+//                book.setCoverImagePath(null);
+            }
+        }, executorService);
+
+        book.setCoverImagePath("book-images/" + bookId + "/original.jpg");
+        book.setThumbnailImagePath("book-images/" + bookId + "/thumbnail.jpg");
         return book;
     }
 }

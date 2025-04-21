@@ -16,28 +16,28 @@ public class Rating {
     private Long id;
 
     @Column(name = "rating")
-    private Float rating;
+    private Float rating = 0f;
 
     @Column(name = "num_ratings")
-    private Integer numRatings;
+    private Integer numRatings = 0;
 
     @Column(name = "liked_percent")
-    private Integer likedPercent;
+    private Integer likedPercent = 0;
 
     @Column(name = "five_star_ratings")
-    private Integer fiveStarRatings;
+    private Integer fiveStarRatings = 0;
 
     @Column(name = "four_star_ratings")
-    private Integer fourStarRatings;
+    private Integer fourStarRatings = 0;
 
     @Column(name = "three_star_ratings")
-    private Integer threeStarRatings;
+    private Integer threeStarRatings = 0;
 
     @Column(name = "two_star_ratings")
-    private Integer twoStarRatings;
+    private Integer twoStarRatings = 0;
 
     @Column(name = "one_star_ratings")
-    private Integer oneStarRatings;
+    private Integer oneStarRatings = 0;
 
     @OneToOne(mappedBy = "rating")
     private Book book;

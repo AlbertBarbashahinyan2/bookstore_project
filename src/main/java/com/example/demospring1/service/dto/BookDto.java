@@ -35,5 +35,5 @@ public class BookDto {
     private Integer bbeScore;
     private String publishDate;
     private String firstPublishDate;
-
+    private String imageUrl;
 }

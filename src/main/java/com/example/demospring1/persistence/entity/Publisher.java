@@ -21,6 +21,6 @@ public class Publisher {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "publisher")
+    @OneToMany(mappedBy = "publisher", cascade = CascadeType.PERSIST)
     private List<BookPublisher> publishers;
 }

@@ -12,6 +12,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RatingService {
+    public static final float PERCENT = 100f;
     private final RatingRepository ratingRepository;
 
     public void saveAll(List<Rating> ratings) {
@@ -106,12 +107,12 @@ public class RatingService {
             float rating = Math.round(
                     (ratingObj.getFiveStarRatings() * 5 + ratingObj.getFourStarRatings() * 4 +
                             ratingObj.getThreeStarRatings() * 3 + ratingObj.getTwoStarRatings() * 2 +
-                            ratingObj.getOneStarRatings()) * 100f / numRatings) / 100f;
+                            ratingObj.getOneStarRatings()) * PERCENT / numRatings) / PERCENT;
             ratingObj.setRating(rating);
 
             int likedPercent = Math.round(
                     (ratingObj.getFiveStarRatings() + ratingObj.getFourStarRatings() +
-                            ratingObj.getThreeStarRatings()) * 100f / numRatings );
+                            ratingObj.getThreeStarRatings()) * PERCENT / numRatings );
             ratingObj.setLikedPercent(likedPercent);
         }
 

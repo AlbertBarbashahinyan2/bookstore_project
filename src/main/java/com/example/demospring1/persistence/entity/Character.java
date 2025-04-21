@@ -22,6 +22,6 @@ public class Character {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "character")
+    @OneToMany(mappedBy = "character", cascade = CascadeType.PERSIST)
     private List<BookCharacter> characters;
 }

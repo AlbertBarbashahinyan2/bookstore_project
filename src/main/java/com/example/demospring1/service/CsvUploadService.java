@@ -4,6 +4,7 @@ import com.example.demospring1.persistence.entity.*;
 import com.example.demospring1.persistence.entity.Character;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.QuoteMode;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -108,6 +109,7 @@ public class CsvUploadService {
                     String bbeScore = record.get("bbeScore").trim();
                     String publishDate = record.get("publishDate").trim();
                     String firstPublishDate = record.get("firstPublishDate").trim();
+                    String imageUrl = record.get("coverImg").trim();
                     String[] authorNames = record.get("author").trim().split(",\\s*");
                     String[] genreNames = record.get("genres").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
                     String[] characterNames = record.get("characters").trim().replaceAll("[\\[\\]']", "").split(",\\s*");
@@ -131,7 +133,7 @@ public class CsvUploadService {
 
                     Book book = bookService.setupBook(bookId, title, description,
                             series, pages, price, language, edition, bookFormat, isbn,
-                            bbeVotes, bbeScore, publishDate, firstPublishDate);
+                            bbeVotes, bbeScore, publishDate, firstPublishDate, imageUrl);
 
                     authorService.processAuthorsAndBookAuthors(authorNames, processedAuthors,
                             authors, book, bookAuthors);
@@ -158,14 +160,6 @@ public class CsvUploadService {
                 } catch (Exception e) {
                     LOGGER.log(Level.WARNING, "Error processing record: " + record, e);
                 }
-
-                if (count > 1000) {
-                    saveBatch(books, authors, bookAuthors, genres, bookGenres,
-                            publishers, bookPublishers, settings, bookSettings,
-                            awards, bookAwards, characters, bookCharacters);
-                    count = 0; // Reset count after saving
-                }
-                count++;
             }
 
             saveBatch(books, authors, bookAuthors, genres, bookGenres,

@@ -67,7 +67,7 @@ public class Book {
     @Column(name = "isbn")
     private String isbn;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "rating_id")
     private Rating rating;
 
@@ -83,4 +83,9 @@ public class Book {
     @Column(name = "first_publish_date")
     private LocalDate firstPublishDate;
 
+    @Column(name = "book_cover")
+    private String coverImagePath;
+
+    @Column(name = "book_thumbnail")
+    private String thumbnailImagePath;
 }

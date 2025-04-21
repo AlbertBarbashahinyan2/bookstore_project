@@ -21,6 +21,6 @@ public class Setting {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "setting")
+    @OneToMany(mappedBy = "setting", cascade = CascadeType.PERSIST)
     private List<BookSetting> settings;
 }
