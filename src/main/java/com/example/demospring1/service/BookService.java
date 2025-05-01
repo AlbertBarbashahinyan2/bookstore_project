@@ -9,11 +9,14 @@ import com.example.demospring1.persistence.entity.Character;
 import com.example.demospring1.persistence.repository.AuthorRepository;
 import com.example.demospring1.persistence.repository.BookRepository;
 import com.example.demospring1.service.dto.BookDto;
+import com.example.demospring1.service.dto.PageResponseDto;
 import com.example.demospring1.service.imagehandler.BookImageService;
 import com.example.demospring1.service.mapper.BookMapper;
 import com.example.demospring1.service.parser.DateParser;
+import com.example.demospring1.service.criteria.BookSearchCriteria;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,13 +52,23 @@ public class BookService {
     private final AuthorRepository authorRepository;
     private final BookImageService bookImageService;
 
-    public List<BookDto> findAll(Specification<Book> spec) {
-        List<Book> books = bookRepository.findAll(spec);
+    public PageResponseDto<BookDto> findAll(Specification<Book> spec, BookSearchCriteria criteria) {
+        Page<Book> books = bookRepository.findAll(spec, criteria.buildPageRequest());
         if (books.isEmpty()) {
             throw new BookNotFoundException("No books found");
         }
-        return bookMapper.toDtos(books);
+        return PageResponseDto.from(books.map(bookMapper::toDto));
     }
+
+//    public PageResponseDto<BookDto> getAll(BookSearchCriteria criteria) {
+//        Page<BookDto> page = bookRepository.findAll(
+//                criteria,
+//                criteria.buildPageRequest()
+//        );
+//
+//        return PageResponseDto.from(page);
+//    }
+
 
     @Transactional
     public void addRatingToBook(int star, String bookId) {

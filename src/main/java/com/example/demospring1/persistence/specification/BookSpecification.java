@@ -2,7 +2,6 @@ package com.example.demospring1.persistence.specification;
 
 import com.example.demospring1.persistence.entity.*;
 import com.example.demospring1.persistence.entity.Character;
-import com.example.demospring1.service.searchcriteria.BookSearchCriteria;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,10 +9,12 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.criteria.Predicate;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BookSpecification {
 
-    public static Specification<Book> withCriteria(BookSearchCriteria criteria) {
+    public Specification<Book> withCriteria(com.example.demospring1.service.criteria.BookSearchCriteria criteria) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -69,7 +70,7 @@ public class BookSpecification {
             if (criteria.getLanguage() != null) {
                 predicates.add(criteriaBuilder.equal(
                         criteriaBuilder.lower(root.get("language")),
-                        criteria.getLanguage().toLowerCase()
+                        "%" + criteria.getLanguage().toLowerCase() + "%"
                 ));
             }
 
@@ -124,15 +125,15 @@ public class BookSpecification {
                 if (criteria.getMinNumRatings() != null) {
                     predicates.add(criteriaBuilder.greaterThanOrEqualTo(
                             ratingJoin.get("numRatings"),
-                            criteria.getMaxNumRatings()
+                            criteria.getMinNumRatings()
                     ));
                 }
 
                 // Maximum numRatings filter
-                if (criteria.getMaxRating() != null) {
+                if (criteria.getMaxNumRatings() != null) {
                     predicates.add(criteriaBuilder.lessThanOrEqualTo(
                             ratingJoin.get("rating"),
-                            criteria.getMaxRating()
+                            criteria.getMaxNumRatings()
                     ));
                 }
 

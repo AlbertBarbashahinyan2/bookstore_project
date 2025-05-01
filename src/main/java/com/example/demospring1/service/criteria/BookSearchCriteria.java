@@ -1,13 +1,15 @@
-package com.example.demospring1.service.searchcriteria;
+package com.example.demospring1.service.criteria;
 
-import jakarta.persistence.Column;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
-import java.util.List;
 
-@Data
-public class BookSearchCriteria {
+@Getter
+@Setter
+public class BookSearchCriteria extends SearchCriteria {
     private String bookId;
     private String title;
     private String description;
@@ -43,4 +45,13 @@ public class BookSearchCriteria {
     private LocalDate firstPublishDate;
     private LocalDate firstPublishDateStart;
     private LocalDate firstPublishDateEnd;
+
+    @Override
+    public PageRequest buildPageRequest() {
+        PageRequest pageRequest = super.buildPageRequest();
+
+        return pageRequest.withSort(
+                Sort.by("title").descending()
+        );
+    }
 }

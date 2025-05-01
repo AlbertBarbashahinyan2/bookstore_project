@@ -20,7 +20,7 @@ public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificat
 
 
     @Query(""" 
-            SELECT b.bookId 
+            SELECT b.bookId
             FROM Book b
             """)
     List<String> findAllBookIds();

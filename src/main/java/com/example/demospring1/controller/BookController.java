@@ -1,14 +1,14 @@
 package com.example.demospring1.controller;
 
 import com.example.demospring1.persistence.entity.Book;
-import com.example.demospring1.persistence.repository.BookRepository;
 import com.example.demospring1.persistence.specification.BookSpecification;
 import com.example.demospring1.service.BookService;
-
 import com.example.demospring1.service.CharacterService;
+import com.example.demospring1.service.criteria.BookSearchCriteria;
 import com.example.demospring1.service.dto.BookDto;
-import com.example.demospring1.service.searchcriteria.BookSearchCriteria;
+import com.example.demospring1.service.dto.PageResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +21,13 @@ import java.util.List;
 public class BookController {
     private final BookService bookService;
     private final CharacterService characterService;
+    private final BookSpecification bookSpecification;
 
     @Autowired
-    public BookController(BookService bookService, CharacterService characterService) {
+    public BookController(BookService bookService, CharacterService characterService, BookSpecification bookSpecification) {
         this.bookService = bookService;
         this.characterService = characterService;
+        this.bookSpecification = bookSpecification;
     }
 
     @GetMapping("/{bookId}")
@@ -83,10 +85,15 @@ public class BookController {
         return characterService.getBooksByCharacterName(characterName);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<BookDto>> searchBooks(BookSearchCriteria criteria) {
-        Specification<Book> spec = BookSpecification.withCriteria(criteria);
-        List<BookDto> results = bookService.findAll(spec);
+    @GetMapping
+    public ResponseEntity<PageResponseDto<BookDto>> searchBooks(BookSearchCriteria criteria) {
+        Specification<Book> spec = bookSpecification.withCriteria(criteria);
+        PageResponseDto<BookDto> results = bookService.findAll(spec, criteria);
         return ResponseEntity.ok(results);
     }
+//
+//    @GetMapping
+//    public PageResponseDto<BookDto> getAll(BookSearchCriteria criteria) {
+//        return bookService.getAll(criteria);
+//    }
 }
