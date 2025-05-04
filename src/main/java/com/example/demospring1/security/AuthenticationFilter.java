@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -47,9 +46,14 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
         final String[] authorities = jwtUtil.getAuthorities(token);
 
-        final List<SimpleGrantedAuthority> grantedAuthorities = Arrays.stream(authorities)
-                .map(SimpleGrantedAuthority::new)
-                .toList();
+//        boolean isStoredTokenValid = tokenRepository
+//                .findByToken(jwt)
+//                .map(t -> !t.isExpired() && !t.isRevoked())
+//                .orElse(false);
+
+        List<SimpleGrantedAuthority> grantedAuthorities = authorities != null
+                ? Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList()
+                : List.of();
 
         final UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities);

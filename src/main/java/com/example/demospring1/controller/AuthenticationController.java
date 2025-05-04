@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,9 +34,19 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.register(registrationRequestDto));
     }
 
-//    @PostMapping("/refresh")
-//    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        authenticationService.refreshToken(request, response);
-//    }
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthenticationResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        AuthenticationResponse authResponse = authenticationService.refreshToken(request, response);
+        if (authResponse == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    AuthenticationResponse.builder()
+                            .withAccessToken(null)
+                            .withRefreshToken(null)
+                            .withUsername(null)
+                            .build()
+            );
+        }
+        return ResponseEntity.ok(authResponse);
+    }
 
 }

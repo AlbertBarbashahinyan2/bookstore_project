@@ -6,14 +6,23 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "`user`")
 @Setter
 @Getter
-public class User {
+public class User implements UserDetails {
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return role.getAuthorities();
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -49,4 +58,7 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
     private Instant updatedAt; //= Instant.now();
+
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
 }
