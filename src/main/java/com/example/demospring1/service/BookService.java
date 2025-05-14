@@ -1,8 +1,7 @@
 package com.example.demospring1.service;
 
-import com.example.demospring1.exception.AuthorNotFoundException;
 import com.example.demospring1.exception.BookAlreadyExistsException;
-import com.example.demospring1.exception.BookNotFoundException;
+import com.example.demospring1.exception.ResourceNotFoundException;
 import com.example.demospring1.persistence.entity.*;
 
 import com.example.demospring1.persistence.entity.Character;
@@ -55,26 +54,16 @@ public class BookService {
     public PageResponseDto<BookDto> findAll(Specification<Book> spec, BookSearchCriteria criteria) {
         Page<Book> books = bookRepository.findAll(spec, criteria.buildPageRequest());
         if (books.isEmpty()) {
-            throw new BookNotFoundException("No books found");
+            throw new ResourceNotFoundException("No books found");
         }
         return PageResponseDto.from(books.map(bookMapper::toDto));
     }
-
-//    public PageResponseDto<BookDto> getAll(BookSearchCriteria criteria) {
-//        Page<BookDto> page = bookRepository.findAll(
-//                criteria,
-//                criteria.buildPageRequest()
-//        );
-//
-//        return PageResponseDto.from(page);
-//    }
-
 
     @Transactional
     public void addRatingToBook(int star, String bookId) {
         Book book = bookRepository.getByBookId(bookId);
         if (book == null) {
-            throw new BookNotFoundException(bookId);
+            throw new ResourceNotFoundException(bookId);
         }
         ratingService.addRatingToBook(star, book);
     }
@@ -109,7 +98,7 @@ public class BookService {
                 String cleanName = name.trim();
                 Author author = authorRepository.findByName(cleanName);
                 if (author == null) {
-                    throw new AuthorNotFoundException(cleanName);
+                    throw new ResourceNotFoundException("Author with name " + cleanName + " not found");
                 }
 
                 bookAuthorService.setupBookAuthors(book, bookAuthors, author);
@@ -248,7 +237,7 @@ public class BookService {
     public BookDto getBookDto(String bookId) {
         bookId = bookId.trim();
         if (bookRepository.getByBookId(bookId) == null) {
-            throw new BookNotFoundException(bookId);
+            throw new ResourceNotFoundException(bookId);
         }
         return bookMapper.toDto(bookRepository.getByBookId(bookId));
     }
@@ -256,7 +245,7 @@ public class BookService {
     public Book getBook(String bookId) {
         bookId = bookId.trim();
         if (bookRepository.getByBookId(bookId) == null) {
-            throw new BookNotFoundException(bookId);
+            throw new ResourceNotFoundException(bookId);
         }
         return bookRepository.getByBookId(bookId);
     }
@@ -264,7 +253,7 @@ public class BookService {
     public byte[] getBookCover(String bookId) {
         bookId = bookId.trim();
         if (bookRepository.getByBookId(bookId) == null) {
-            throw new BookNotFoundException(bookId);
+            throw new ResourceNotFoundException(bookId);
         }
         Book book = bookRepository.getByBookId(bookId);
         Path path = Path.of(book.getCoverImagePath());
@@ -283,7 +272,7 @@ public class BookService {
     @Transactional
     public void deleteBook(String bookId) {
         if (bookRepository.getByBookId(bookId) == null) {
-            throw new BookNotFoundException(bookId);
+            throw new ResourceNotFoundException(bookId);
         }
         bookRepository.deleteByBookId(bookId);
     }

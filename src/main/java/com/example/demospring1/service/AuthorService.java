@@ -1,8 +1,7 @@
 package com.example.demospring1.service;
 
 import com.example.demospring1.exception.AuthorAlreadyExistsException;
-import com.example.demospring1.exception.AuthorNotFoundException;
-import com.example.demospring1.exception.BookNotFoundException;
+import com.example.demospring1.exception.ResourceNotFoundException;
 import com.example.demospring1.persistence.entity.*;
 import com.example.demospring1.persistence.repository.AuthorRepository;
 import com.example.demospring1.service.dto.AuthorDto;
@@ -30,7 +29,7 @@ public class AuthorService {
     public AuthorDto findDtoByName(String name) {
         name = name.trim();
         if (authorRepository.findByName(name) == null) {
-            throw new AuthorNotFoundException(name);
+            throw new ResourceNotFoundException("Author with name " + name + " not found");
         }
         return authorMapper.toDto(authorRepository.findByName(name));
     }
@@ -38,7 +37,7 @@ public class AuthorService {
     public Author findByName(String name) {
         name = name.trim();
         if (authorRepository.findByName(name) == null) {
-            throw new AuthorNotFoundException(name);
+            throw new ResourceNotFoundException("Author with name " + name + " not found");
         }
         return authorRepository.findByName(name);
     }
@@ -109,7 +108,7 @@ public class AuthorService {
     @Transactional
     public void deleteAuthor(String authorName) {
         if (authorRepository.findByName(authorName) == null) {
-            throw new AuthorNotFoundException(authorName);
+            throw new ResourceNotFoundException("Author with name " + authorName + " not found");
         }
         authorRepository.deleteByName(authorName);
     }

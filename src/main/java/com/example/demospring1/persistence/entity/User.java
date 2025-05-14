@@ -6,22 +6,15 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "`user`")
 @Setter
 @Getter
-public class User implements UserDetails {
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getAuthorities();
-    }
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

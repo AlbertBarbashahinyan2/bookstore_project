@@ -1,7 +1,6 @@
 package com.example.demospring1.service;
 
-import com.example.demospring1.exception.CharacterNotFoundException;
-import com.example.demospring1.persistence.entity.Author;
+import com.example.demospring1.exception.ResourceNotFoundException;
 import com.example.demospring1.persistence.entity.Book;
 import com.example.demospring1.persistence.entity.BookCharacter;
 import com.example.demospring1.persistence.entity.Character;
@@ -71,7 +70,7 @@ public class CharacterService {
         characterName = characterName.trim();
         Character character = findByName(characterName);
         if (character == null) {
-            throw new CharacterNotFoundException(characterName);
+            throw new ResourceNotFoundException("Character with name " + characterName + " not found");
         }
         List<BookCharacter> bookCharacters = bookCharacterService.getAllByCharacter(character);
         List<Book> books = new ArrayList<>();

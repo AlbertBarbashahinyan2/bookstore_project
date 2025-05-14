@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,10 +39,12 @@ public class JwtUtil {
     }
 
     public String generateAccessToken(UserDetails userDetails) {
+        String jti = UUID.randomUUID().toString();
         return JWT.create()
                 .withSubject(userDetails.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
                 .withIssuedAt(new Date(System.currentTimeMillis()))
+                .withJWTId(jti)
                 .withClaim(ROLES, userDetails.getAuthorities()
                         .stream()
                         .map(GrantedAuthority::getAuthority)
@@ -50,10 +53,12 @@ public class JwtUtil {
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
+        String jti = UUID.randomUUID().toString();
         return JWT.create()
                 .withSubject(userDetails.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + JWT_REFRESH_TOKEN_VALIDITY))
                 .withIssuedAt(Instant.now())
+                .withJWTId(jti)
                 .sign(this.getAlgorithm());
     }
 
@@ -64,6 +69,10 @@ public class JwtUtil {
         } catch (JWTVerificationException e) {
             return false;
         }
+    }
+
+    public String getJti(String token) {
+        return this.verifyAndDecode(token).getId();
     }
 
     public String[] getAuthorities(String token) {
