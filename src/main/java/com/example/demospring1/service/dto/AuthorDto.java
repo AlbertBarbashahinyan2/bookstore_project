@@ -13,6 +13,8 @@ public class AuthorDto {
     @NotBlank(message = "Author name cannot be blank")
     private String name;
 
+    private int bookCount;
+
     private List<String> books;
 
 }

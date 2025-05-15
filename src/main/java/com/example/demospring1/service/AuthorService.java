@@ -1,12 +1,16 @@
 package com.example.demospring1.service;
 
-import com.example.demospring1.exception.AuthorAlreadyExistsException;
+import com.example.demospring1.exception.ResourceAlreadyUsedException;
 import com.example.demospring1.exception.ResourceNotFoundException;
 import com.example.demospring1.persistence.entity.*;
 import com.example.demospring1.persistence.repository.AuthorRepository;
+import com.example.demospring1.service.criteria.AuthorSearchCriteria;
 import com.example.demospring1.service.dto.AuthorDto;
+import com.example.demospring1.service.dto.PageResponseDto;
 import com.example.demospring1.service.mapper.AuthorMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +50,14 @@ public class AuthorService {
         return authorRepository.findAllAuthorNames();
     }
 
+    public PageResponseDto<AuthorDto> findAll(Specification<Author> spec, AuthorSearchCriteria criteria) {
+        Page<Author> authors = authorRepository.findAll(spec, criteria.buildPageRequest());
+        if (authors.isEmpty()) {
+            throw new ResourceNotFoundException("No authors found");
+        }
+        return PageResponseDto.from(authors.map(authorMapper::toDto));
+    }
+
     public List<Author> findAll() {
         return authorRepository.findAll();
     }
@@ -82,7 +94,7 @@ public class AuthorService {
     @Transactional
     public void createAuthorFromDto(AuthorDto dto) {
         if (authorRepository.existsByName(dto.getName())) {
-            throw new AuthorAlreadyExistsException(dto.getName());
+            throw new ResourceAlreadyUsedException("Author already exists with name: " + dto.getName());
         }
         Author author = new Author();
         author.setName(dto.getName());

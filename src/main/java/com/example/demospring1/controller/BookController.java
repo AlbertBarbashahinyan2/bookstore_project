@@ -94,9 +94,5 @@ public class BookController {
         PageResponseDto<BookDto> results = bookService.findAll(spec, criteria);
         return ResponseEntity.ok(results);
     }
-//
-//    @GetMapping
-//    public PageResponseDto<BookDto> getAll(BookSearchCriteria criteria) {
-//        return bookService.getAll(criteria);
-//    }
+
 }

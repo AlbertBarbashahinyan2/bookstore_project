@@ -1,20 +1,32 @@
 package com.example.demospring1.controller;
 
+import com.example.demospring1.persistence.entity.Author;
+import com.example.demospring1.persistence.entity.Book;
+import com.example.demospring1.persistence.specification.AuthorSpecification;
+import com.example.demospring1.persistence.specification.BookSpecification;
 import com.example.demospring1.service.AuthorService;
+import com.example.demospring1.service.criteria.AuthorSearchCriteria;
+import com.example.demospring1.service.criteria.BookSearchCriteria;
 import com.example.demospring1.service.dto.AuthorDto;
+import com.example.demospring1.service.dto.BookDto;
+import com.example.demospring1.service.dto.PageResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/authors")
 public class AuthorController {
     private final AuthorService authorService;
+    private final AuthorSpecification authorSpecification;
 
     @Autowired
-    public AuthorController(AuthorService authorService) {
+    public AuthorController(AuthorService authorService, AuthorSpecification authorSpecification) {
         this.authorService = authorService;
+        this.authorSpecification = authorSpecification;
     }
 
     @GetMapping("/{authorName}")
@@ -24,6 +36,7 @@ public class AuthorController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> createAuthor(@RequestBody AuthorDto authorDto) {
         try {
             authorService.createAuthorFromDto(authorDto);
@@ -35,6 +48,7 @@ public class AuthorController {
 
     @DeleteMapping("/{authorName}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> deleteAuthor(@PathVariable String authorName) {
         try {
             authorService.deleteAuthor(authorName);
@@ -42,6 +56,13 @@ public class AuthorController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<PageResponseDto<AuthorDto>> searchAuthors(AuthorSearchCriteria criteria) {
+        Specification<Author> spec = authorSpecification.withCriteria(criteria);
+        PageResponseDto<AuthorDto> results = authorService.findAll(spec, criteria);
+        return ResponseEntity.ok(results);
     }
 
 }

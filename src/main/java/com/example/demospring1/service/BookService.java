@@ -1,6 +1,6 @@
 package com.example.demospring1.service;
 
-import com.example.demospring1.exception.BookAlreadyExistsException;
+import com.example.demospring1.exception.ResourceAlreadyUsedException;
 import com.example.demospring1.exception.ResourceNotFoundException;
 import com.example.demospring1.persistence.entity.*;
 
@@ -71,7 +71,7 @@ public class BookService {
     @Transactional
     public void createBookFromDto(BookDto dto) {
         if (bookRepository.existsByBookId(dto.getBookId())) {
-            throw new BookAlreadyExistsException(dto.getBookId());
+            throw new ResourceAlreadyUsedException("Book already exists with id: " + dto.getBookId());
         }
         Book book = setupBook(
                 dto.getBookId(),

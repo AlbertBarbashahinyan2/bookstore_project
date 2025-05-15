@@ -25,7 +25,7 @@ public class Author {
     @OneToMany(mappedBy = "author", cascade = CascadeType.PERSIST)
     private List<BookAuthor> books;
 
-
+    private int bookCount = 0;
 }
 
 

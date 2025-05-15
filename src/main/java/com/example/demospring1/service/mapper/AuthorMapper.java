@@ -16,6 +16,7 @@ public class AuthorMapper {
         AuthorDto authorDto = new AuthorDto();
         authorDto.setId(author.getId());
         authorDto.setName(author.getName());
+        authorDto.setBookCount(author.getBookCount());
         authorDto.setBooks(mapBooks(author));
         return authorDto;
     }

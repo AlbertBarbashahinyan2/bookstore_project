@@ -29,5 +29,6 @@ public class BookAuthorService {
         bookAuthor.setBook(book);
         bookAuthor.setAuthor(author);
         bookAuthors.add(bookAuthor);
+        author.setBookCount(author.getBookCount() + 1);
     }
 }

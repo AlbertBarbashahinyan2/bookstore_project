@@ -196,7 +196,8 @@ public class BookSpecification {
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(awardJoin.get("name")),
                         "%" + criteria.getAward().toLowerCase() + "%"
-                ));            }
+                ));
+            }
 
             // Setting filter
             if (criteria.getSetting() != null && !criteria.getSetting().isEmpty()) {

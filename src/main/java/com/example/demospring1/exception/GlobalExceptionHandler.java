@@ -11,16 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BookAlreadyExistsException.class)
-    public ResponseEntity<String> handleBookAlreadyExists(BookAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(AuthorAlreadyExistsException.class)
-    public ResponseEntity<String> handleAuthorAlreadyExists(AuthorAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
         final ExceptionResponse exceptionResponse = ExceptionResponse.builder()
