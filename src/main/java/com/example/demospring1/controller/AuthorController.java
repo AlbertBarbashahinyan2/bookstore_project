@@ -29,14 +29,9 @@ public class AuthorController {
         this.authorSpecification = authorSpecification;
     }
 
-    @GetMapping("/{authorName}")
-    public AuthorDto getAuthor(@PathVariable String authorName) {
-        return authorService.findDtoByName(authorName);
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('CREATE_AUTHOR')")
     public ResponseEntity<String> createAuthor(@RequestBody AuthorDto authorDto) {
         try {
             authorService.createAuthorFromDto(authorDto);
@@ -48,7 +43,7 @@ public class AuthorController {
 
     @DeleteMapping("/{authorName}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('DELETE_AUTHOR')")
     public ResponseEntity<String> deleteAuthor(@PathVariable String authorName) {
         try {
             authorService.deleteAuthor(authorName);

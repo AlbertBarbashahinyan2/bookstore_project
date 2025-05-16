@@ -63,4 +63,19 @@ public class UserService {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
+
+    public UserDto getUserDtoById(Long id) {
+        final User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return UserDto.toDto(user);
+    }
+
+    public void assignRole(Long userId, RoleName roleName) {
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        user.setRole(role);
+        userRepository.save(user);
+    }
 }

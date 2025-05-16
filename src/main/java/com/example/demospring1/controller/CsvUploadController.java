@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/upload")
-@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CsvUploadController {
 
     private final CsvUploadService csvUploadService;
@@ -22,6 +21,7 @@ public class CsvUploadController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('UPLOAD_CSV')")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
             csvUploadService.processCsv(file);

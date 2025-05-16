@@ -63,7 +63,7 @@ public class BookService {
     public void addRatingToBook(int star, String bookId) {
         Book book = bookRepository.getByBookId(bookId);
         if (book == null) {
-            throw new ResourceNotFoundException(bookId);
+            throw new ResourceNotFoundException("Book with id " + bookId + " not found");
         }
         ratingService.addRatingToBook(star, book);
     }
@@ -237,7 +237,7 @@ public class BookService {
     public BookDto getBookDto(String bookId) {
         bookId = bookId.trim();
         if (bookRepository.getByBookId(bookId) == null) {
-            throw new ResourceNotFoundException(bookId);
+            throw new ResourceNotFoundException("Book with id " + bookId + " not found");
         }
         return bookMapper.toDto(bookRepository.getByBookId(bookId));
     }
@@ -245,7 +245,7 @@ public class BookService {
     public Book getBook(String bookId) {
         bookId = bookId.trim();
         if (bookRepository.getByBookId(bookId) == null) {
-            throw new ResourceNotFoundException(bookId);
+            throw new ResourceNotFoundException("Book with id " + bookId + " not found");
         }
         return bookRepository.getByBookId(bookId);
     }
@@ -253,7 +253,7 @@ public class BookService {
     public byte[] getBookCover(String bookId) {
         bookId = bookId.trim();
         if (bookRepository.getByBookId(bookId) == null) {
-            throw new ResourceNotFoundException(bookId);
+            throw new ResourceNotFoundException("Book with id " + bookId + " not found");
         }
         Book book = bookRepository.getByBookId(bookId);
         Path path = Path.of(book.getCoverImagePath());
@@ -272,7 +272,7 @@ public class BookService {
     @Transactional
     public void deleteBook(String bookId) {
         if (bookRepository.getByBookId(bookId) == null) {
-            throw new ResourceNotFoundException(bookId);
+            throw new ResourceNotFoundException("Book with id " + bookId + " not found");
         }
         bookRepository.deleteByBookId(bookId);
     }

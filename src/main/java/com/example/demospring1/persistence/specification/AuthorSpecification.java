@@ -2,6 +2,7 @@ package com.example.demospring1.persistence.specification;
 
 import com.example.demospring1.persistence.entity.*;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -16,8 +17,8 @@ public class AuthorSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             query.distinct(true);
-            Join<Author, BookAuthor> bookAuthorJoin = root.join("books");
-            Join<BookAuthor, Book> bookJoin = bookAuthorJoin.join("book");
+            Join<Author, BookAuthor> bookAuthorJoin = root.join("books", JoinType.LEFT);
+            Join<BookAuthor, Book> bookJoin = bookAuthorJoin.join("book", JoinType.LEFT);
 
             // Name filter
             if (criteria.getName() != null) {

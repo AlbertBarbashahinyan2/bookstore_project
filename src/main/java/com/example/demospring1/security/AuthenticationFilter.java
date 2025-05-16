@@ -46,10 +46,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
         final String[] authorities = jwtUtil.getAuthorities(token);
 
-//        boolean isStoredTokenValid = tokenRepository
-//                .findByToken(jwt)
-//                .map(t -> !t.isExpired() && !t.isRevoked())
-//                .orElse(false);
 
         List<SimpleGrantedAuthority> grantedAuthorities = authorities != null
                 ? Arrays.stream(authorities).map(SimpleGrantedAuthority::new).toList()
