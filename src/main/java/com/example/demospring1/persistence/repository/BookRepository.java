@@ -1,6 +1,7 @@
 package com.example.demospring1.persistence.repository;
 
 import com.example.demospring1.persistence.entity.Book;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +20,7 @@ public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificat
     boolean existsByBookId(String bookId);
 
 
+//    @EntityGraph(attributePaths = {"authors", "genres"})
     @Query(""" 
             SELECT b.bookId
             FROM Book b

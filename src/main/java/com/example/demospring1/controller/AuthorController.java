@@ -1,15 +1,12 @@
 package com.example.demospring1.controller;
 
 import com.example.demospring1.persistence.entity.Author;
-import com.example.demospring1.persistence.entity.Book;
 import com.example.demospring1.persistence.specification.AuthorSpecification;
-import com.example.demospring1.persistence.specification.BookSpecification;
 import com.example.demospring1.service.AuthorService;
 import com.example.demospring1.service.criteria.AuthorSearchCriteria;
-import com.example.demospring1.service.criteria.BookSearchCriteria;
 import com.example.demospring1.service.dto.AuthorDto;
-import com.example.demospring1.service.dto.BookDto;
 import com.example.demospring1.service.dto.PageResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -32,7 +29,7 @@ public class AuthorController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('CREATE_AUTHOR')")
-    public ResponseEntity<String> createAuthor(@RequestBody AuthorDto authorDto) {
+    public ResponseEntity<String> createAuthor(@RequestBody @Valid AuthorDto authorDto) {
         try {
             authorService.createAuthorFromDto(authorDto);
             return ResponseEntity.ok("Author created successfully.");

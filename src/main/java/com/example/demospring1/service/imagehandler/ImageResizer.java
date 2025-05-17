@@ -15,19 +15,18 @@ import java.nio.file.Path;
 @Slf4j
 @Component
 public class ImageResizer {
-    private final String thumbnailName = "thumbnail.jpg";
 
-    public void createThumbnail(File original) {
+    public void createThumbnail(File original, Path thumbnailName) {
         log.info("Creating thumbnail...");
         try {
-            if (Files.exists(Path.of(original.getParent() + "/"+ thumbnailName))) {
+            if (Files.exists(thumbnailName)) {
                 log.info("Thumbnail already exists!");
                 return;
             }
             BufferedImage img = ImageIO.read(original);
             BufferedImage resized = resize(img, 150, 220); // small size
 
-            File thumbnail = new File(original.getParent(), thumbnailName);
+            File thumbnail = new File(original.getParent(), "thumbnail.jpg");
             ImageIO.write(resized, "jpg", thumbnail);
             log.info("Thumbnail created!");
         } catch (IOException e) {

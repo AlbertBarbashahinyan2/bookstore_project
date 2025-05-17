@@ -2,6 +2,7 @@ package com.example.demospring1.service;
 
 import com.example.demospring1.persistence.entity.*;
 import com.example.demospring1.persistence.entity.Character;
+import com.example.demospring1.service.imagehandler.BookImageService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.QuoteMode;
 import org.springframework.scheduling.annotation.Async;
@@ -42,6 +43,7 @@ public class CsvUploadService {
     private final CharacterService characterService;
     private final BookCharacterService bookCharacterService;
     private final RatingService ratingService;
+    private final BookImageService bookImageService;
 
 
     @Transactional
@@ -192,7 +194,14 @@ public class CsvUploadService {
             authors.clear(); // Clear to release memory
         }
         if (!books.isEmpty()) {
+
             bookService.saveAll(books);
+
+            for (Book book : books) {
+                bookImageService.processBookImageAsync(book);
+            }
+
+
             books.clear(); // Clear to release memory
         }
 

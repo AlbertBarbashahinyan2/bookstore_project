@@ -349,20 +349,8 @@ public class BookService {
         book.setIsbn(isbn.equals("9999999999999") ? null : isbn);
 
 
-        final ExecutorService executorService = Executors.newFixedThreadPool(20);
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            Path path = bookImageService.getImagePath(bookId, imageUrl);
-            if (path != null) {
-                bookImageService.processImage(imageUrl, path);
-//                book.setCoverImagePath(path.toString());
-            } else {
-                log.warn("Setting cover image path to null for book: {}", bookId);
-//                book.setCoverImagePath(null);
-            }
-        }, executorService);
+        book.setCoverImagePath(imageUrl);
 
-        book.setCoverImagePath("book-images/" + bookId + "/original.jpg");
-        book.setThumbnailImagePath("book-images/" + bookId + "/thumbnail.jpg");
         return book;
     }
 }
